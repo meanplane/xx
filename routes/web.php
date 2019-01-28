@@ -18,5 +18,10 @@ Route::get('/info',function (){
 });
 
 Route::get('/xx',function (){
-    return view('/index');
+//    return view('/index');
+    echo m(' admin. xx .admin_user');
+});
+
+Route::get('/login',function (){
+    return view('admin.login');
 });
