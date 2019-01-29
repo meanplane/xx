@@ -6,106 +6,79 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <style>
+        .login{
+            margin: 0 auto;
+            width: 1200px;
+        }
+        .login .container{
+            margin: 150px auto;
+            width: 400px;
+        }
+        .login .container h1{
+            font-weight: 400;
+            font-size: 36px;
+            margin-bottom:50px;
+        }
+        .login .container .btn{
+            width: 100%;
+            margin-top: 30px;
+            height: 48px;
+        }
+        .login .container .el-form-item__label{
+            line-height:40px;
+            font-size:14px;
+        }
+        .login .container .el-input__inner{
+            height: 48px;
+            border-radius:3px;
+            font-size:14px;
+            padding-left:20px;
+            /* border: solid 1px $separateLineColor1; */
+        }
+        </style>
     <link rel="stylesheet" href="/mp/el-index.css">
 </head>
 <body>
-<div class="login-container" id="login">
-
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
-        <div class="title-container">
-            <h3 class="title"> title </h3>
-        </div>
-
-        <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
-            <el-input
-                    v-model="loginForm.username"
-                    placeholder="用户名"
-                    name="username"
-                    type="text"
-                    auto-complete="on"
-            />
-        </el-form-item>
-
-        <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
-            <el-input
-                    type="password"
-                    v-model="loginForm.password"
-                    placeholder="密码"
-                    name="password"
-                    auto-complete="on"
-                    @keyup.enter.native="handleLogin" />
-            <span class="show-pwd" @click="showPwd">
-          <svg-icon icon-class="eye" />
-        </span>
-        </el-form-item>
-
-        <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登  录</el-button>
-
-
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">第三方登录</el-button>
-    </el-form>
-
+<div class="login" id="login">
+    <div class="container">
+        <h1>欢迎登录</h1>
+        <el-form
+                :rules="loginRules"
+                :model="loginForm"
+                ref="loginForm"
+                :hide-required-asterisk="true"
+        >
+            <el-form-item label="账户名" prop="userName">
+                <el-input placeholder="请输入用户名" v-model="loginForm.userName"></el-input>
+            </el-form-item>
+            <el-form-item label="密码"  prop="password">
+                <el-input placeholder="请输入密码" v-model="loginForm.password"></el-input>
+            </el-form-item>
+            <el-form-item class="btnBox">
+                <el-button class="btn" type="primary">登  录</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
 </div>
 
 <script src="/mp/vue.js"></script>
 <script src="/mp/el-index.js"></script>
 <script src="/mp/axios.min.js"></script>
 <script>
-    const validateUsername = (rule, value, callback) => {
-        if (!isvalidUsername(value)) {
-            callback(new Error('Please enter the correct user name'))
-        } else {
-            callback()
-        }
-    };
-    const validatePassword = (rule, value, callback) => {
-        if (value.length < 6) {
-            callback(new Error('The password can not be less than 6 digits'))
-        } else {
-            callback()
-        }
-    };
-    // head
     new Vue({
-        el: '#login',
-        data() {
-
-            return {
-                showDialog : false,
-                loginForm:{
-                    username:'admin',
-                    password:'111111'
-                },
-                loginRules: {
-                    username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-                    password: [{ required: true, trigger: 'blur', validator: validatePassword }]
-                },
-                passwordType: 'password',
-                    loading: false,
-                    showDialog: false,
-                    redirect: undefined
-                }
-        },
-        methods: {
-            showPwd() {
-                if (this.passwordType === 'password') {
-                    this.passwordType = ''
-                } else {
-                    this.passwordType = 'password'
-                }
+        el:"#login",
+        data:{
+            loginForm:{
+                userName:"",
+                password:""
             },
+            loginRules:{
+                userName:{required:true,message:"请输入用户名",trigger:"blur"},
+                password:{required:true,message:"请输入用户名",trigger:"blur"}
+            }
         }
-    });
-
-
+    })
 </script>
 </body>
 </html>
