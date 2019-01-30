@@ -6,7 +6,7 @@
  * Time: 16:40
  */
 
-namespace App\Http\Models\Admin;
+namespace App\Models\Admin;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -26,39 +26,31 @@ class User extends Authenticatable{
         'info.password' => 'required|min:3|max:10',
     ];
 
-    /**
-     * 获取用户
-     * @param type $where
-     * @return type
-     */
-    public function getLists($where)
-    {
-        $res = static::where($where)->orderBy('id', 'desc')->paginate(20);
-        foreach ($res as $k => $v) {
-            if ($tmp = m('AdminGroupAccess')->getAdminGroupAccess($v['id'])) {
-                $res[$k]['groups'] = implode(',', array_column($tmp, 'name'));
-            }
-
-        }
-        return $res;
-    }
-
-    /**
-     * 获取管理员数组 id=>realname
-     * @return type
-     */
-    public function getIdName()
-    {
-        return static::pluck('realname', 'id')->toArray();
-    }
-
-    /**
-     * 通过ID获取字段名称
-     * @param type $id
-     */
-    public function getFieldValue($id)
-    {
-        return static::where('id', $id)->value('realname');
-
-    }
+//    public function getLists($where)
+//    {
+//        $res = static::where($where)->orderBy('id', 'desc')->paginate(20);
+//        foreach ($res as $k => $v) {
+//            if ($tmp = m('AdminGroupAccess')->getAdminGroupAccess($v['id'])) {
+//                $res[$k]['groups'] = implode(',', array_column($tmp, 'name'));
+//            }
+//
+//        }
+//        return $res;
+//    }
+//
+//
+//    public function getIdName()
+//    {
+//        return static::pluck('realname', 'id')->toArray();
+//    }
+//
+//    /**
+//     * 通过ID获取字段名称
+//     * @param type $id
+//     */
+//    public function getFieldValue($id)
+//    {
+//        return static::where('id', $id)->value('realname');
+//
+//    }
 }

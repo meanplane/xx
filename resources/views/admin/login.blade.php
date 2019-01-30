@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>xx后台管理系统</title>
     <style>
         .login{
             margin: 0 auto;
@@ -42,21 +42,24 @@
 <body>
 <div class="login" id="login">
     <div class="container">
-        <h1>欢迎登录</h1>
+        <h1 style="text-align: center;color: #F56C6C">xx后台管理</h1>
         <el-form
                 :rules="loginRules"
                 :model="loginForm"
                 ref="loginForm"
                 :hide-required-asterisk="true"
         >
-            <el-form-item label="账户名" prop="userName">
-                <el-input placeholder="请输入用户名" v-model="loginForm.userName"></el-input>
+            <el-form-item  prop="name" label="用户名">
+                <el-input type="text" autocomplete="off" clearable placeholder="请输入用户名" v-model="loginForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="密码"  prop="password">
-                <el-input placeholder="请输入密码" v-model="loginForm.password"></el-input>
+            <el-form-item  prop="password" label="密码">
+                <el-input type="password" autocomplete="off" clearable  placeholder="请输入密码" v-model="loginForm.password"></el-input>
+            </el-form-item>
+            <el-form-item >
+                <el-checkbox v-model="is_remember">保存密码</el-checkbox>
             </el-form-item>
             <el-form-item class="btnBox">
-                <el-button class="btn" type="primary">登  录</el-button>
+                <el-button class="btn" type="primary" @click="onLogin('loginForm')">登  录</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -65,17 +68,43 @@
 <script src="/mp/vue.js"></script>
 <script src="/mp/el-index.js"></script>
 <script src="/mp/axios.min.js"></script>
+<script src="/mp/mp.js"></script>
 <script>
     new Vue({
         el:"#login",
         data:{
             loginForm:{
-                userName:"",
+                is_remember:false,
+                name:"",
                 password:""
             },
             loginRules:{
-                userName:{required:true,message:"请输入用户名",trigger:"blur"},
-                password:{required:true,message:"请输入用户名",trigger:"blur"}
+                name:[
+                    {required:true,message:"请输入用户名",trigger:"blur"},
+                    {min:3,max:12,message:"长度在3-12个字符",trigger:"blur"},
+                ],
+                password:[
+                    {required:true,message:"请输入密码",trigger:"blur"},
+                    {min:3,max:12,message:"长度在3-12个字符",trigger:"blur"},
+                ]
+            }
+        },
+        methods:{
+            onLogin(loginName){
+                var _this = this;
+                this.$refs[loginName].validate((valid)=>{
+                    if(valid){
+                        axios.post('/admin/login/login',_this.loginForm,{headers:{'X-Requested-With':'XMLHttpRequest'}})
+                            .then((res)=>{
+//                                if(res.data && res.data.code && res.data.code == 1){
+//
+//                                }
+                                console.log(res);
+                            })
+                    }else{
+                        return false;
+                    }
+                })
             }
         }
     })

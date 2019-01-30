@@ -17,11 +17,24 @@ Route::get('/info',function (){
     echo phpinfo();
 });
 
-Route::get('/xx',function (){
-//    return view('/index');
-    echo m(' admin. xx .admin_user');
-});
+if (!isset($_SERVER['argv'])) {
+    $act = explode('?', $_SERVER['REQUEST_URI'])[0]; //请求
 
-Route::get('/login',function (){
-    return view('admin.login');
-});
+    if ($act != '/') {
+        $method = strtolower($_SERVER['REQUEST_METHOD']); //方法
+        $path = explode('/', trim($act, '/'));
+        if(count($path)==3){
+            Route::$method($act, ucfirst($path[0]).'\\' . ucfirst($path[1]) . 'Controller@' . $path[2]);
+        }
+    }
+}
+
+
+//Route::get('/xx',function (){
+////    return view('/index');
+//    echo m(' admin. xx .admin_user');
+//});
+//
+//Route::get('/login',function (){
+//    return view('admin.login');
+//});
