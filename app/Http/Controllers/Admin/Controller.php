@@ -8,9 +8,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Traits\ResTrait;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
 
 class Controller extends BaseController{
+    use ResTrait;
 
     protected $login_user;
     protected $m = 'admin';//模块
@@ -24,21 +27,28 @@ class Controller extends BaseController{
         $this->middleware(function ($request, $next) {
             //登陆验证
             $this->login_user = $request->user('admin');
+
             if (!$this->login_user) {
-                return $this->error('请登陆', '/login/index');
+                return $this->error('请先登陆', ['url'=>'/admin/login/index']);
             }
 
             $this->_getPathInfo();//获取请求信息
 
             //当前请求菜单详情
-            $this->menu_info = m('Menu')->where([['c', $this->c], ['a', $this->a]])->first();
-            if ((!$this->menu_info) && (!preg_match('/^public/', $this->a))) {
+            $this->menu_info = m('admin.menu')->where([
+                ['c', $this->c],
+                ['a', $this->a],
+                ['m', $this->m]
+            ])->first();
+
+            // 过滤掉首页（写死 admin/index/index）
+            if ((!$this->menu_info) && !($this->m == 'admin' && $this->c == 'index')) {
                 return $this->error('请求地址不存在,请添加!');
             }
 
             //检查请求权限
             if (!$this->_checkRole()) {
-                return $this->error('没有权限');
+                return $this->error('404 没有此权限');
             }
             //获取请求的module信息
             //$this->module_id = m('Module')->where('tablename',$this->c)->value('id');
@@ -79,9 +89,10 @@ class Controller extends BaseController{
             }
 
         } else {
+            // 请求根目录 /
             $this->m = 'admin';
-            $this->c = 'adminHome';
-            $this->a = 'publicIndex';
+            $this->c = 'index';
+            $this->a = 'index';
         }
 
     }
@@ -89,18 +100,18 @@ class Controller extends BaseController{
     //检测权限
     private function _checkRole()
     {
-
-        //公开菜单
-        if (preg_match('/^public/', $this->a)) {
+        // 首页
+        if ($this->m == 'admin' && $this->c == 'index') {
             return true;
         }
-        //超级管理员请求
+
+        // 超级管理员请求
         if ($this->login_user->is_super == 1) {
             return true;
         }
 
+        $my_menu = m('admin.menu')->myMenu(0);
         //没有分配菜单
-        $my_menu = m('Menu')->myMenu(0);
         if (!$my_menu || !isset($this->menu_info->id)) {
             return false;
         }
@@ -110,8 +121,6 @@ class Controller extends BaseController{
         }
 
         return true;
-
-
     }
 
     //写日志
@@ -154,59 +163,59 @@ class Controller extends BaseController{
 
 
     //公用添加,可覆盖
-    protected function add()
-    {
-        if ($this->storage()) {
-            return $this->success('添加成功', '/' . $this->c . '/lists');
-        } else {
-            return $this->error();
-        }
-    }
+//    protected function add()
+//    {
+//        if ($this->storage()) {
+//            return $this->success('添加成功', '/' . $this->c . '/lists');
+//        } else {
+//            return $this->error();
+//        }
+//    }
 
     //公用修改,可覆盖
-    protected function edit()
-    {
-        if ($this->storage()) {
-            return $this->success('修改成功', '/' . $this->c . '/lists');
-        } else {
-            return $this->error();
-        }
-    }
+//    protected function edit()
+//    {
+//        if ($this->storage()) {
+//            return $this->success('修改成功', '/' . $this->c . '/lists');
+//        } else {
+//            return $this->error();
+//        }
+//    }
 
     //公用存储,可覆盖
-    private function storage()
-    {
-        //dd(request());
-        $this->validate(request(), $this->M->rules, $this->M->messages);
-        $params = request($this->M->fillable); //可以添加或修改的参数
-
-        $params['admin_id'] = $this->login_user->id;
-
-        if (request('id')) {
-            $rs = $this->M->where('id', request('id'))->update($params);
-        } else {
-            $rs = $this->M->create($params);
-        }
-        return $rs;
-    }
+//    private function storage()
+//    {
+//        //dd(request());
+//        $this->validate(request(), $this->M->rules, $this->M->messages);
+//        $params = request($this->M->fillable); //可以添加或修改的参数
+//
+//        $params['admin_id'] = $this->login_user->id;
+//
+//        if (request('id')) {
+//            $rs = $this->M->where('id', request('id'))->update($params);
+//        } else {
+//            $rs = $this->M->create($params);
+//        }
+//        return $rs;
+//    }
 
     // 公用状态禁用,不爽请覆盖
-    protected function status()
-    {
-        $info = $this->M->find(request('id'));
-        if (!$info) {
-            return $this->error('找不到这条信息');
-        }
-        $info->status = $info->status == 1 ? 2 : 1;
-        $info->save();
-        return $this->success();
-    }
+//    protected function status()
+//    {
+//        $info = $this->M->find(request('id'));
+//        if (!$info) {
+//            return $this->error('找不到这条信息');
+//        }
+//        $info->status = $info->status == 1 ? 2 : 1;
+//        $info->save();
+//        return $this->success();
+//    }
 
     //公用删除,不爽请覆盖
-    protected function del()
-    {
-        $this->M->where('id', request('id'))->delete();
-        return $this->success();
-    }
+//    protected function del()
+//    {
+//        $this->M->where('id', request('id'))->delete();
+//        return $this->success();
+//    }
 
 }

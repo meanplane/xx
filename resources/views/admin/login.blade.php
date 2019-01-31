@@ -38,6 +38,7 @@
         }
         </style>
     <link rel="stylesheet" href="/mp/el-index.css">
+    <link rel="stylesheet" href="/sweet/sweetalert2.min.css">
 </head>
 <body>
 <div class="login" id="login">
@@ -56,7 +57,7 @@
                 <el-input type="password" autocomplete="off" clearable  placeholder="请输入密码" v-model="loginForm.password"></el-input>
             </el-form-item>
             <el-form-item >
-                <el-checkbox v-model="is_remember">保存密码</el-checkbox>
+                <el-checkbox v-model="loginForm.is_remember">保存密码</el-checkbox>
             </el-form-item>
             <el-form-item class="btnBox">
                 <el-button class="btn" type="primary" @click="onLogin('loginForm')">登  录</el-button>
@@ -68,6 +69,7 @@
 <script src="/mp/vue.js"></script>
 <script src="/mp/el-index.js"></script>
 <script src="/mp/axios.min.js"></script>
+<script src="/sweet/sweetalert2.min.js"></script>
 <script src="/mp/mp.js"></script>
 <script>
     new Vue({
@@ -96,10 +98,14 @@
                     if(valid){
                         axios.post('/admin/login/login',_this.loginForm,{headers:{'X-Requested-With':'XMLHttpRequest'}})
                             .then((res)=>{
-//                                if(res.data && res.data.code && res.data.code == 1){
-//
-//                                }
-                                console.log(res);
+                                if(res.data && res.data.code && res.data.code == 1){
+                                    _this.$message.success(res.data.msg);
+                                    setTimeout(()=>{
+                                        jumpTo(res.data.data.url);
+                                    },500);
+                                }else{
+                                    _this.$message.error(res.data.msg);
+                                }
                             })
                     }else{
                         return false;

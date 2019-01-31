@@ -7,6 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="/mp/el-index.css">
+    <script src="/mp/jquery.min.js"></script>
+    <script src="/mp/vue.js"></script>
+    <script src="/mp/el-index.js"></script>
+    <script src="/mp/axios.min.js"></script>
+    <script src="/mp/mp.js"></script>
 </head>
 <style>
     * {
@@ -40,7 +45,7 @@
         padding: 0 20px;
         box-sizing: border-box;
         position: fixed;
-        z-index: 99999;
+        z-index: 100;
         width: 100%;
         background: #0e90d2;
         color: #fff;
@@ -68,22 +73,24 @@
         overflow: auto;
         margin-top: 60px;
     }
+
+    [v-cloak]{
+        display: none;
+    }
 </style>
 <body>
-<div id="head">
+<div id="head" v-cloak>
     <header>
         <h3 class="left" style="margin-left:40px;">后台管理模板</h3>
         <div class="right" style="margin-right:40px;">
-            <el-dropdown trigger="click">
+            <el-dropdown >
                 <span class="el-dropdown-link">管理员
                    <i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>黄金糕</el-dropdown-item>
-                    <el-dropdown-item>狮子头</el-dropdown-item>
-                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                    <el-dropdown-item>双皮奶</el-dropdown-item>
-                    <el-dropdown-item>蚵仔煎</el-dropdown-item>
+                <el-dropdown-menu slot="dropdown"  split-button="true">
+                    <el-dropdown-item  @click.native="updateInfo" ><i class="el-icon-edit"></i>   更新资料</el-dropdown-item>
+                    <el-dropdown-item @click.native="updatePass"><i class="el-icon-refresh"></i>   更新密码</el-dropdown-item>
+                    <el-dropdown-item divided @click.native="logout"><i class="el-icon-close"></i>   退出系统</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
@@ -91,7 +98,7 @@
 </div>
 
 <div class="content">
-    <div id="left-menu">
+    <div id="left-menu" v-cloak>
         <div class="aside" style="height: 100%;border-right: solid 1px #e6e6e6;">
             <el-menu
                     default-active="2"
@@ -122,19 +129,19 @@
             </el-menu>
         </div>
     </div>
+    {{--<div id="main">--}}
+        {{--<div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;">--}}
+            {{--<div class="title" style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px">--}}
+                {{--<h3 style="line-height: 1;color: deepskyblue">表单 / form</h3>--}}
+            {{--</div>--}}
+            {{----}}
+        {{--</div>--}}
+    {{--</div>--}}
     <div id="main">
-        <div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;">
-            <div class="title" style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px">
-                <h3 style="line-height: 1;">表单 / form</h3>
-            </div>
 
-
-        </div>
     </div>
 </div>
-<script src="/mp/vue.js"></script>
-<script src="/mp/el-index.js"></script>
-<script src="/mp/axios.min.js"></script>
+
 <script>
     // head
     new Vue({
@@ -142,7 +149,21 @@
         data: function () {
             return {}
         },
-        methods: {}
+        methods: {
+            updateInfo(){
+                getPage(this,'/admin/index/updateInfo');
+            },
+            updatePass(){
+                getPage(this,'/admin/index/updatePass');
+            },
+            logout(){
+                ajaxPost(this,'/admin/login/logout',{},'登出...',(res)=>{
+                    setTimeout(()=>{
+                        jumpTo(res.url);
+                    },500);
+                })
+            },
+        }
     });
 
     // left-menu
@@ -154,6 +175,8 @@
         methods: {}
     })
 </script>
+
+
 </body>
 
 </html>
