@@ -1,6 +1,13 @@
 // url 跳转
-function jumpTo(url) {
-    window.location.href = url;
+function jumpTo(url,time) {
+    if(time){
+        setTimeout(()=>{
+            window.location.href = url;
+        },time);
+    }else{
+        window.location.href = url;
+    }
+
 }
 
 // sweetAlert2 message

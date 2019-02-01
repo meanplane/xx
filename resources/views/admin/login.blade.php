@@ -7,36 +7,41 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>xx后台管理系统</title>
     <style>
-        .login{
+        .login {
             margin: 0 auto;
             width: 1200px;
         }
-        .login .container{
+
+        .login .container {
             margin: 150px auto;
             width: 400px;
         }
-        .login .container h1{
+
+        .login .container h1 {
             font-weight: 400;
             font-size: 36px;
-            margin-bottom:50px;
+            margin-bottom: 50px;
         }
-        .login .container .btn{
+
+        .login .container .btn {
             width: 100%;
             margin-top: 30px;
             height: 48px;
         }
-        .login .container .el-form-item__label{
-            line-height:40px;
-            font-size:14px;
+
+        .login .container .el-form-item__label {
+            line-height: 40px;
+            font-size: 14px;
         }
-        .login .container .el-input__inner{
+
+        .login .container .el-input__inner {
             height: 48px;
-            border-radius:3px;
-            font-size:14px;
-            padding-left:20px;
+            border-radius: 3px;
+            font-size: 14px;
+            padding-left: 20px;
             /* border: solid 1px $separateLineColor1; */
         }
-        </style>
+    </style>
     <link rel="stylesheet" href="/mp/el-index.css">
     <link rel="stylesheet" href="/sweet/sweetalert2.min.css">
 </head>
@@ -50,17 +55,21 @@
                 ref="loginForm"
                 :hide-required-asterisk="true"
         >
-            <el-form-item  prop="name" label="用户名">
-                <el-input type="text" autocomplete="off" clearable placeholder="请输入用户名" v-model="loginForm.name"></el-input>
+            <el-form-item prop="name" label="用户名">
+                <el-input type="text" autocomplete="off" clearable placeholder="请输入用户名"
+                          v-model="loginForm.name"></el-input>
             </el-form-item>
-            <el-form-item  prop="password" label="密码">
-                <el-input type="password" autocomplete="off" clearable  placeholder="请输入密码" v-model="loginForm.password"></el-input>
+            <el-form-item prop="password" label="密码">
+                <el-input type="password" autocomplete="off" clearable placeholder="请输入密码"
+                          v-model="loginForm.password"></el-input>
             </el-form-item>
-            <el-form-item >
+            <el-form-item>
                 <el-checkbox v-model="loginForm.is_remember">保存密码</el-checkbox>
             </el-form-item>
             <el-form-item class="btnBox">
-                <el-button class="btn" type="primary" @click="onLogin('loginForm')">登  录</el-button>
+                <el-button class="btn" type="primary" @click="onLogin('loginForm')" @keyup.enter="onLogin('loginForm')">
+                    登 录
+                </el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -73,41 +82,39 @@
 <script src="/mp/mp.js"></script>
 <script>
     new Vue({
-        el:"#login",
-        data:{
-            loginForm:{
-                is_remember:false,
-                name:"",
-                password:""
+        el: "#login",
+        data: {
+            loginForm: {
+                is_remember: false,
+                name: "",
+                password: ""
             },
-            loginRules:{
-                name:[
-                    {required:true,message:"请输入用户名",trigger:"blur"},
-                    {min:3,max:12,message:"长度在3-12个字符",trigger:"blur"},
+            loginRules: {
+                name: [
+                    {required: true, message: "请输入用户名", trigger: "blur"},
+                    {min: 3, max: 12, message: "长度在3-12个字符", trigger: "blur"},
                 ],
-                password:[
-                    {required:true,message:"请输入密码",trigger:"blur"},
-                    {min:3,max:12,message:"长度在3-12个字符",trigger:"blur"},
+                password: [
+                    {required: true, message: "请输入密码", trigger: "blur"},
+                    {min: 3, max: 12, message: "长度在3-12个字符", trigger: "blur"},
                 ]
             }
         },
-        methods:{
-            onLogin(loginName){
+        methods: {
+            onLogin(loginName) {
                 var _this = this;
-                this.$refs[loginName].validate((valid)=>{
-                    if(valid){
-                        axios.post('/admin/login/login',_this.loginForm,{headers:{'X-Requested-With':'XMLHttpRequest'}})
-                            .then((res)=>{
-                                if(res.data && res.data.code && res.data.code == 1){
+                this.$refs[loginName].validate((valid) => {
+                    if (valid) {
+                        axios.post('/admin/login/login', _this.loginForm, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+                            .then((res) => {
+                                if (res.data && res.data.code && res.data.code == 1) {
                                     _this.$message.success(res.data.msg);
-                                    setTimeout(()=>{
-                                        jumpTo(res.data.data.url);
-                                    },500);
-                                }else{
+                                    jumpTo(res.data.data.url,500);
+                                } else {
                                     _this.$message.error(res.data.msg);
                                 }
                             })
-                    }else{
+                    } else {
                         return false;
                     }
                 })

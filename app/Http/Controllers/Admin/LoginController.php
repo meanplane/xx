@@ -51,8 +51,6 @@ class LoginController extends BaseController{
     }
 
     public function logout(){
-        sleep(3);
-
         Auth::guard('admin')->logout();
         return $this->success('退出登录！',['url'=>'/admin/login/index']);
     }

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>xx管理系统</title>
     <link rel="stylesheet" href="/mp/el-index.css">
     <script src="/mp/jquery.min.js"></script>
     <script src="/mp/vue.js"></script>
@@ -49,7 +49,6 @@
         width: 100%;
         background: #0e90d2;
         color: #fff;
-    "
     }
 
     .content {
@@ -101,44 +100,54 @@
     <div id="left-menu" v-cloak>
         <div class="aside" style="height: 100%;border-right: solid 1px #e6e6e6;">
             <el-menu
-                    default-active="2"
-                    class="el-menu-vertical-demo">
-                <el-submenu index="1">
-                    <template slot="title">
-                        <i class="el-icon-location"></i>
-                        <span>导航一</span>
-                    </template>
-                    <el-menu-item-group>
-                        <el-menu-item index="1-1">选项1</el-menu-item>
-                        <el-menu-item index="1-2">选项2</el-menu-item>
-                        <el-menu-item index="1-3">选项3</el-menu-item>
-                    </el-menu-item-group>
-                    <el-submenu index="1-4">
-                        <template slot="title">选项4</template>
-                        <el-menu-item index="1-4-1">选项1</el-menu-item>
-                    </el-submenu>
-                </el-submenu>
-                <el-menu-item index="2">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">导航二</span>
-                </el-menu-item>
-                <el-menu-item index="3">
-                    <i class="el-icon-setting"></i>
-                    <span slot="title">导航四</span>
-                </el-menu-item>
+                    class="el-menu-vertical-demo"
+                    @select="handleSelect">
+                @foreach($menuTree as $menu)
+                    @if(isset($menu['_child']))
+                        <el-submenu>
+                            <template slot="title">
+                                @if(!empty($menu['icon']))
+                                    <i class="{{$menu['icon'] }}"></i>
+                                @endif
+                                <span>{{$menu['name']}}</span>
+                            </template>
+
+                            @foreach($menu['_child'] as $m1)
+                                @if(isset($m1['_child']))
+                                    <template slot="title">
+                                        {{--<i class="el-icon-location"></i>--}}
+                                        @if(!empty($m1['icon']))
+                                            <i class="{{$m1['icon'] }}"></i>
+                                        @endif
+                                        <span>{{$m1['name']}}</span>
+                                    </template>
+                                @else
+                                    <el-menu-item index="/{{ $m1['m'].'/'.$m1['c'].'/'.$m1['a'].'?'.$m1['data'] }}">
+                                        {{--<i class="el-icon-menu"></i>--}}
+                                        @if(!empty($m1['icon']))
+                                            <i class="{{$m1['icon'] }}"></i>
+                                        @endif
+                                        <span slot="title">{{$m1['name']}}</span>
+                                    </el-menu-item>
+                                @endif
+                            @endforeach
+
+                        </el-submenu>
+                    @else
+                        <el-menu-item index="/{{ $menu['m'].'/'.$menu['c'].'/'.$menu['a'].'?'.$menu['data'] }}">
+                            {{--<i class="el-icon-menu"></i>--}}
+                            @if(!empty($menu['icon']))
+                                <i class="{{$menu['icon'] }}"></i>
+                            @endif
+                            <span slot="title">{{$menu['name']}}</span>
+                        </el-menu-item>
+                    @endif
+                @endforeach
             </el-menu>
         </div>
     </div>
-    {{--<div id="main">--}}
-        {{--<div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;">--}}
-            {{--<div class="title" style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px">--}}
-                {{--<h3 style="line-height: 1;color: deepskyblue">表单 / form</h3>--}}
-            {{--</div>--}}
-            {{----}}
-        {{--</div>--}}
-    {{--</div>--}}
-    <div id="main">
 
+    <div id="main">
     </div>
 </div>
 
@@ -157,11 +166,7 @@
                 getPage(this,'/admin/index/updatePass');
             },
             logout(){
-                ajaxPost(this,'/admin/login/logout',{},'登出...',(res)=>{
-                    setTimeout(()=>{
-                        jumpTo(res.url);
-                    },500);
-                })
+                ajaxPost(this,'/admin/login/logout',{},'登出...',(res)=> {jumpTo(res.url, 500);})
             },
         }
     });
@@ -170,9 +175,19 @@
     new Vue({
         el: '#left-menu',
         data: function () {
-            return {}
+            return {
+                menuTree:@json($menuTree)
+            }
         },
-        methods: {}
+        methods: {
+            handleSelect(key,keyPath){
+                console.log('key',key)
+                console.log('keyPath',keyPath)
+            }
+        },
+        created(){
+            console.log(this.menuTree);
+        }
     })
 </script>
 

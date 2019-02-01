@@ -50,15 +50,11 @@ class Controller extends BaseController{
             if (!$this->_checkRole()) {
                 return $this->error('404 没有此权限');
             }
-            //获取请求的module信息
-            //$this->module_id = m('Module')->where('tablename',$this->c)->value('id');
-
 
             //记录日志
             if (isset($this->menu_info) && $this->menu_info->write_log == 1) {
                 $this->_saveLog($this->menu_info->id);
             }
-
 
             return $next($request);
         });
@@ -115,11 +111,11 @@ class Controller extends BaseController{
         if (!$my_menu || !isset($this->menu_info->id)) {
             return false;
         }
+
         //访问菜单不在自己菜单中
         if (!in_array($this->menu_info->id, array_column($my_menu, 'id'))) {
             return false;
         }
-
         return true;
     }
 
@@ -139,7 +135,7 @@ class Controller extends BaseController{
             if(isset(request()->post()['info']['id'])){
                 $data['primary_id'] = request()->post()['info']['id'];
             }
-            // dd($data);
+//             dd($data);
         }
         m('AdminLog')->create($data);
     }
