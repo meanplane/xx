@@ -38,3 +38,26 @@ if (!isset($_SERVER['argv'])) {
 //Route::get('/login',function (){
 //    return view('admin.login');
 //});
+
+Route::get('/xx',function(){
+    for($i=1;$i<137;$i++){
+        $url = 'http://w3.jbzcjsj.rocks/pw/thread-htm-fid-106-page-'.$i.'.html';
+        $query = \QL\QueryList::get($url);
+
+        $res = $query->rules([
+            'title'=>['h3>a','text'],
+            'href'=>['h3>a','href']
+        ])->query()->getData()->all();
+
+        m('admin.xx')->insert($res);
+    }
+
+
+
+    echo 'ok';
+});
+
+Route::get('/vv',function(){
+   $res = m('admin.xx')->count();
+   dd($res);
+});

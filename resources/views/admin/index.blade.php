@@ -73,7 +73,7 @@
         margin-top: 60px;
     }
 
-    [v-cloak]{
+    [v-cloak] {
         display: none;
     }
 </style>
@@ -82,14 +82,15 @@
     <header>
         <h3 class="left" style="margin-left:40px;">后台管理模板</h3>
         <div class="right" style="margin-right:40px;">
-            <el-dropdown >
+            <el-dropdown>
                 <span class="el-dropdown-link">管理员
                    <i class="el-icon-arrow-down el-icon--right"></i>
                 </span>
-                <el-dropdown-menu slot="dropdown"  split-button="true">
-                    <el-dropdown-item  @click.native="updateInfo" ><i class="el-icon-edit"></i>   更新资料</el-dropdown-item>
-                    <el-dropdown-item @click.native="updatePass"><i class="el-icon-refresh"></i>   更新密码</el-dropdown-item>
-                    <el-dropdown-item divided @click.native="logout"><i class="el-icon-close"></i>   退出系统</el-dropdown-item>
+                <el-dropdown-menu slot="dropdown" split-button="true">
+                    <el-dropdown-item @click.native="updateInfo"><i class="el-icon-edit"></i> 更新资料</el-dropdown-item>
+                    <el-dropdown-item @click.native="updatePass"><i class="el-icon-refresh"></i> 更新密码</el-dropdown-item>
+                    <el-dropdown-item divided @click.native="logout"><i class="el-icon-close"></i> 退出系统
+                    </el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
@@ -104,7 +105,7 @@
                     @select="handleSelect">
                 @foreach($menuTree as $menu)
                     @if(isset($menu['_child']))
-                        <el-submenu>
+                        <el-submenu index="{{ $menu['m'].'/'.$menu['c'].'/'.$menu['a'] }}">
                             <template slot="title">
                                 @if(!empty($menu['icon']))
                                     <i class="{{$menu['icon'] }}"></i>
@@ -113,23 +114,13 @@
                             </template>
 
                             @foreach($menu['_child'] as $m1)
-                                @if(isset($m1['_child']))
-                                    <template slot="title">
-                                        {{--<i class="el-icon-location"></i>--}}
-                                        @if(!empty($m1['icon']))
-                                            <i class="{{$m1['icon'] }}"></i>
-                                        @endif
-                                        <span>{{$m1['name']}}</span>
-                                    </template>
-                                @else
-                                    <el-menu-item index="/{{ $m1['m'].'/'.$m1['c'].'/'.$m1['a'].'?'.$m1['data'] }}">
-                                        {{--<i class="el-icon-menu"></i>--}}
-                                        @if(!empty($m1['icon']))
-                                            <i class="{{$m1['icon'] }}"></i>
-                                        @endif
-                                        <span slot="title">{{$m1['name']}}</span>
-                                    </el-menu-item>
-                                @endif
+                                <el-menu-item index="/{{ $m1['m'].'/'.$m1['c'].'/'.$m1['a'].'?'.$m1['data'] }}">
+                                    {{--<i class="el-icon-menu"></i>--}}
+                                    @if(!empty($m1['icon']))
+                                        <i class="{{$m1['icon'] }}"></i>
+                                    @endif
+                                    <span slot="title">{{$m1['name']}}</span>
+                                </el-menu-item>
                             @endforeach
 
                         </el-submenu>
@@ -159,14 +150,16 @@
             return {}
         },
         methods: {
-            updateInfo(){
-                getPage(this,'/admin/index/updateInfo');
+            updateInfo() {
+                getPage(this, '/admin/index/updateInfo');
             },
-            updatePass(){
-                getPage(this,'/admin/index/updatePass');
+            updatePass() {
+                getPage(this, '/admin/index/updatePass');
             },
-            logout(){
-                ajaxPost(this,'/admin/login/logout',{},'登出...',(res)=> {jumpTo(res.url, 500);})
+            logout() {
+                ajaxPost(this, '/admin/login/logout', {}, '登出...', (res) => {
+                    jumpTo(res.url, 500);
+                })
             },
         }
     });
@@ -180,13 +173,12 @@
             }
         },
         methods: {
-            handleSelect(key,keyPath){
-                console.log('key',key)
-                console.log('keyPath',keyPath)
+            handleSelect(key) {
+                getPage(this,key);
             }
         },
-        created(){
-            console.log(this.menuTree);
+        created() {
+            // console.log(this.menuTree);
         }
     })
 </script>

@@ -82,4 +82,25 @@ class Menu extends Model
         $myMenu = $this->MyMenu(1);
         return list_to_tree($myMenu);
     }
+
+    public function allMenuTree(){
+        $menus = static::orderBy('listorder', 'asc')->get()->toArray();
+        return list_to_tree($menus);
+    }
+
+    //下拉框菜单选择
+    public function selectMenu()
+    {
+        $menus = static::orderBy('listorder', 'asc')->get()->toArray();
+        $menus = node_tree($menus);
+
+        $data = array();
+        foreach ($menus as $k => $v) {
+            $name = $v['level'] == 0 ? '<b>' . $v['name'] . '</b>' : '├─' . $v['name'];
+            $name = str_repeat("│        ", $v['level']) . $name;
+            $data[$v['id']] = $name;
+        }
+        $data[0] = '作为顶级菜单';
+        return $data;
+    }
 }

@@ -1,3 +1,25 @@
+// 解决 低版本浏览器不支持finally
+Promise.prototype.finally = function (callback) {
+    var Promise = this.constructor;
+    return this.then(
+        function (value) {
+            Promise.resolve(callback()).then(
+                function () {
+                    return value;
+                }
+            );
+        },
+        function (reason) {
+            Promise.resolve(callback()).then(
+                function () {
+                    throw reason;
+                }
+            );
+        }
+    );
+}
+
+
 // url 跳转
 function jumpTo(url,time) {
     if(time){
