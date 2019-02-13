@@ -11,6 +11,7 @@
     <script src="/mp/vue.js"></script>
     <script src="/mp/el-index.js"></script>
     <script src="/mp/axios.min.js"></script>
+    <script src="/mp/moment.js"></script>
     <script src="/mp/mp.js"></script>
 </head>
 <style>

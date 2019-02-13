@@ -114,3 +114,54 @@ function deepCopy(obj) {
     let tmp = JSON.stringify(obj);
     return JSON.parse(tmp);
 }
+
+function aWeekDay() {
+    var nowdate = new Date();
+    var oneweekdate = new Date(nowdate-7*24*3600*1000);
+    var y = oneweekdate.getFullYear();
+    var m = oneweekdate.getMonth()+1;
+    var d = oneweekdate.getDate();
+    return y+'-'+m+'-'+d;
+}
+
+function toDay() {
+    var nowdate = new Date();
+    var y = nowdate.getFullYear();
+    var m = nowdate.getMonth()+1;
+    var d = nowdate.getDate();
+    return y+'-'+m+'-'+d;
+}
+
+function aWeekRange() {
+    return [aWeekDay(),toDay()]
+}
+
+function pickerOptions() {
+    return {
+        shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                picker.$emit('pick', [start, end]);
+            }
+        }, {
+            text: '最近一个月',
+            onClick(picker) {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                picker.$emit('pick', [start, end]);
+            }
+        }, {
+            text: '最近三个月',
+            onClick(picker) {
+                const end = new Date();
+                const start = new Date();
+                start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                picker.$emit('pick', [start, end]);
+            }
+        }]
+    }
+}

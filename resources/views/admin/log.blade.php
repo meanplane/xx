@@ -19,6 +19,8 @@
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
                             :picker-options="pickerOptions"
+                            format="yyyy 年 MM 月 dd 日"
+                            value-format="yyyy-MM-dd"
                     >
                     </el-date-picker>
                 </el-form-item>
@@ -33,11 +35,10 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSearch">查询</el-button>
-                    <el-button @click="refreshSearch">查询</el-button>
+                    <el-button @click="refreshSearch">重置查询</el-button>
                 </el-form-item>
 
             </el-form>
-            <h2>@{{ searchData.timeRange }}</h2>
         </div>
 
         <el-table
@@ -46,16 +47,17 @@
             <el-table-column
                     prop="created_at"
                     label="时间"
-                    width="120">
+                    :formatter="(row)=>formatTime(row.created_at)"
+                    width="240">
             </el-table-column>
             <el-table-column
-                    prop="title"
+                    prop="menu_name"
                     label="菜单名"
                     width="200">
             </el-table-column>
             <el-table-column
-                    prop=""
                     label="请求地址"
+                    :formatter="(row)=> row.c+'/'+row.a "
                     width="200">
             </el-table-column>
             <el-table-column
@@ -64,7 +66,7 @@
                     width="200">
             </el-table-column>
             <el-table-column
-                    prop="title"
+                    prop="admin_name"
                     label="操作人"
                     width="200">
             </el-table-column>
@@ -83,9 +85,9 @@
                 background
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                {{--:current-page="searchData.li"--}}
+                :current-page="searchData.page"
                 :page-sizes="[10, 20, 30, 40, 50]"
-                :page-size="100"
+                :page-size="searchData.limit"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total">
         </el-pagination>
@@ -100,9 +102,10 @@
         data: function () {
             return {
                 tableData: [],
+                infoData:{},
                 total:0,
                 searchData:{
-                    timeRange:0,
+                    timeRange:[],
                     menu:'',
                     user:'',
                     ip:'',
@@ -110,33 +113,7 @@
                     limit:10,
                     page:1
                 },
-                pickerOptions: {
-                    shortcuts: [{
-                        text: '最近一周',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }, {
-                        text: '最近一个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }, {
-                        text: '最近三个月',
-                        onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                            picker.$emit('pick', [start, end]);
-                        }
-                    }]
-                },
+                pickerOptions: pickerOptions(),
             }
         },
         methods: {
@@ -155,18 +132,28 @@
                 this._getData();
             },
             refreshSearch(){
-                this.searchData.title = '';
+                this.searchData.timeRange = [];
+                this.searchData.menu = '';
+                this.searchData.user = '';
+                this.searchData.ip = '';
+
+                this.searchData.limit = 10;
+                this.searchData.page = 1;
+
                 this._getData();
             },
             _getData(){
                 ajaxPost(this, '/admin/log/lists', this.searchData , null, (res) => {
-                    this.tableData = res.data;
+                    this.tableData = res.tableData;
                     this.total = res.count;
                 })
+            },
+            formatTime(row){
+                return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
             }
         },
         created() {
-//            this._getData();
+           this._getData();
         }
     })
 
