@@ -15,9 +15,9 @@
     </div>
 
 
-    <el-card style="margin:auto 30px;">
+    <el-card shadow="hover" style="margin:auto 30px;">
         <div slot="header" class="clearfix">
-            <el-form :inline="true" :model="searchData" class="demo-form-inline">
+            <el-form :inline="true">
                 <el-form-item label="菜单名称">
                     <el-input v-model="searchData.name" placeholder="菜单名称"></el-input>
                 </el-form-item>
@@ -67,13 +67,13 @@
                       </el-tag>
                       <el-tag
                               size="mini"
-                              @click.native.stop="() => add(data.id)">
+                              @click.native.stop="() => showAddDialog(data)">
                         添加
                       </el-tag>
                         <el-tag
                                 type="success"
                                 size="mini"
-                                @click.native.stop="() => edit(data)">
+                                @click.native.stop="() => showEditDialog(data)">
                         编辑
                       </el-tag>
                       <el-tag
@@ -96,11 +96,20 @@
             <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
                 <el-form-item label="上级菜单">
                     <el-select v-model="editData.parentid" placeholder="上级菜单">
-                        <el-option v-for="(key,name) in menuSelect" :label="key" :value="name"></el-option>
+                        <el-option v-for="(name,key) in menuSelect" :key="key" :label="name" :value="Number(key)"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="图标">
-                    <el-input v-model="editData.icon"></el-input>
+                    <el-popover
+                            placement="top-start"
+                            width="500"
+                            trigger="hover">
+                        <div>
+                            <h3>选择图标</h3>
+                            <el-tag v-for="item in iconLists" :class="item" style="font-size: 26px;margin:5px;background-color:#fff;" @click.native.stop="editData.icon = item"></el-tag>
+                        </div>
+                        <el-input slot="reference" v-model="editData.icon"></el-input>
+                    </el-popover>
                 </el-form-item>
                 <el-form-item label="菜单名称">
                     <el-input v-model="editData.name"></el-input>
@@ -112,7 +121,13 @@
                     <el-input v-model="editData.c"></el-input>
                 </el-form-item>
                 <el-form-item label="方法名">
-                    <el-input v-model="editData.a"></el-input>
+                    <el-popover
+                            placement="top-start"
+                            width="200"
+                            trigger="hover"
+                            content="添加菜单时，控制器为lists，则自动添加 add,del,edit(不显示)">
+                        <el-input slot="reference" v-model="editData.a"></el-input>
+                    </el-popover>
                 </el-form-item>
                 <el-form-item label="附加参数">
                     <el-input v-model="editData.data"></el-input>
@@ -134,14 +149,14 @@
                 </el-form-item>
             </el-form>
             <div style="text-align: center">
-                <el-button type="primary" >确定</el-button>
+                <el-button type="primary" @click="onSubmit">确定</el-button>
             </div>
     </el-dialog>
 </div>
 
 <script>
     var _editData = {
-        parentid:'0',
+        parentid:0,
         icon:'',
         name:'',
         m:'',
@@ -157,17 +172,79 @@
         status: '',
         write_log: ''
     };
+    var icon_lists = [
+        'el-icon-remove',
+        'el-icon-circle-plus',
+        'el-icon-remove-outline',
+        'el-icon-circle-plus-outline',
+        'el-icon-close',
+        'el-icon-check',
+
+
+        'el-icon-circle-close',
+        'el-icon-circle-check',
+        'el-icon-circle-close-outline',
+        'el-icon-circle-check-outline',
+        'el-icon-zoom-out',
+        'el-icon-zoom-in',
+
+        'el-icon-d-caret',
+        'el-icon-sort',
+        'el-icon-sort-down',
+        'el-icon-sort-up',
+        'el-icon-tickets',
+        'el-icon-document',
+
+
+        'el-icon-goods',
+        'el-icon-sold-out',
+        'el-icon-news',
+        'el-icon-message',
+        'el-icon-date',
+        'el-icon-printer',
+
+        'el-icon-time',
+        'el-icon-bell',
+        'el-icon-mobile-phone',
+        'el-icon-service',
+        'el-icon-view',
+        'el-icon-menu',
+
+        'el-icon-more',
+        'el-icon-more-outline',
+        'el-icon-star-on',
+        'el-icon-star-off',
+        'el-icon-location',
+        'el-icon-location-outline',
+        'el-icon-phone',
+        'el-icon-phone-outline',
+        'el-icon-picture',
+        'el-icon-picture-outline',
+        'el-icon-delete',
+        'el-icon-search',
+        'el-icon-edit',
+        'el-icon-edit-outline',
+        'el-icon-rank',
+        'el-icon-refresh',
+        'el-icon-share',
+        'el-icon-setting',
+        'el-icon-upload',
+        'el-icon-upload2',
+        'el-icon-download',
+        'el-icon-loading',
+    ];
     new Vue({
         el: '#content',
         data: function () {
             return {
+                iconLists:icon_lists,
                 showEdit:false,
                 dialogTitle:'',
-                searchData: {},
-                editData:{},
+                searchData: deepCopy(_searchData),
+                editData:deepCopy(_editData),
 
                 menuData: [],
-                menuSelect: [],
+                menuSelect: {},
                 defaultProps: {
                     children: '_child',
                     label: 'name'
@@ -176,38 +253,67 @@
         },
         methods: {
             onSearch() {
-                console.log(this.searchData)
+                this._getData();
             },
             refreshSearch(){
-                this.searchData = _searchData;
+                this.searchData = deepCopy(_searchData);
+                this._getData();
             },
-            deleteChecked() {
-                console.log(this.$refs.tree.getCheckedKeys());
-            },
-            add(id) {
+            showAddDialog(data) {
                 this.showEdit=true;
                 this.dialogTitle = '添加菜单';
-                this.editData = _editData;
+                this.editData = deepCopy(_editData);
+                this.editData.parentid = data.id;
             },
-            edit(data){
+            showEditDialog(data){
                 this.showEdit=true;
-                this.dialogTitle = '编辑菜单'
+                this.dialogTitle = '编辑菜单';
                 for(k in _editData){
                     this.editData[k] = data[k];
                 }
+                this.editData.id = data.id;
+            },
+            addIcon(item){
+                  console.log(item);
+            },
+            onSubmit(){
+                if(this.editData.id){
+                    ajaxPost(this,'/admin/menu/edit',this.editData,'修改菜单..',()=>{
+                        this.showEdit = false;
+                        this._getData();
+                    })
+                }else{
+                    ajaxPost(this,'/admin/menu/add',this.editData,'新增菜单..',()=>{
+                        this.showEdit = false;
+                        this._getData();
+                    })
+                }
             },
             remove(id) {
-
+                this.$confirm('确定要删除吗？').then(()=>{
+                    ajaxPost(this,'/admin/menu/del',{id},'删除菜单..',()=>{
+                        this._getData();
+                    })
+                })
             },
+            // 删除选中
+            deleteChecked() {
+                let id = this.$refs.tree.getCheckedKeys();
+                this.$confirm('确定要删除吗？').then(()=>{
+                    ajaxPost(this,'/admin/menu/del',{id},'删除菜单..',()=>{
+                        this._getData();
+                    })
+                })
+            },
+            _getData(){
+                ajaxPost(this, '/admin/menu/index', this.searchData, '', (res) => {
+                    this.menuData = res.allMenus;
+                    this.menuSelect = res.selectMenus;
+                })
+            }
         },
         created() {
-            this.searchData = _searchData;
-            this.editData = _editData;
-
-            ajaxPost(this, '/admin/menu/index', null, '', (res) => {
-                this.menuData = res.allMenus;
-                this.menuSelect = res.selectMenus;
-            })
+            this._getData();
         }
     })
 

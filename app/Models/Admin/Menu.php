@@ -32,11 +32,6 @@ class Menu extends Model
         'status' => 'required|int',
     ];
 
-//    public function getMenuName($where)
-//    {
-//        return static::where($where)->value('name');
-//    }
-
     public function myMenu($status = 1)
     {
         $where = array();
@@ -83,24 +78,33 @@ class Menu extends Model
         return list_to_tree($myMenu);
     }
 
-    public function allMenuTree(){
-        $menus = static::orderBy('listorder', 'asc')->get()->toArray();
-        return list_to_tree($menus);
-    }
+    public function allMenuTree($params){
+        $where = [];
+        foreach ($params as $key => $value){
+            if(!empty($value)){
+                if($key == 'name'){
+                    $where[] = ['name','like','%'.$value.'%'];
+                }else{
+                    $where[] = [$key,$value];
+                }
+            }
+        }
 
-    //下拉框菜单选择
-    public function selectMenu()
-    {
-        $menus = static::orderBy('listorder', 'asc')->get()->toArray();
+        $menus = static::where($where)->orderBy('listorder', 'asc')->get()->toArray();
+        $allMenus = list_to_tree($menus);
+
         $menus = node_tree($menus);
 
-        $data = array();
+        // 下拉select选项
+        $selectMenus = [];
         foreach ($menus as $k => $v) {
             $name = $v['level'] == 0 ? '<b>' . $v['name'] . '</b>' : '├─' . $v['name'];
             $name = str_repeat("│        ", $v['level']) . $name;
-            $data[$v['id']] = $name;
+            $selectMenus[$v['id']] = $name;
         }
-        $data[0] = '作为顶级菜单';
-        return $data;
+        $selectMenus[0] = '作为顶级菜单';
+
+        return compact('selectMenus','allMenus');
     }
+
 }

@@ -135,16 +135,15 @@ class Controller extends BaseController{
             if(isset(request()->post()['info']['id'])){
                 $data['primary_id'] = request()->post()['info']['id'];
             }
-//             dd($data);
         }
-        m('AdminLog')->create($data);
+        m('admin.log')->create($data);
     }
 
     //返回视图
     public function view($data = [], $tpl = '')
     {
         if (empty($tpl)) {
-            $tpl = $this->m . '/' . $this->c . '/' . $this->a;
+            $tpl = $this->m . '/' . $this->c ;
         }
         $data = $data?$data:[];
         $data['_m'] = $this->m;
@@ -152,7 +151,6 @@ class Controller extends BaseController{
         $data['_a'] = $this->a;
         //$data['module_id'] = $this->module_id;
         $data['login_user'] = $this->login_user;
-        $data['site'] = $this->site;
         $data['menu_info'] = $this->menu_info;
         return view($tpl, $data);
     }

@@ -108,3 +108,9 @@ function getPage(_this, url) {
         loading.close();
     })
 }
+
+// 深拷贝赋值
+function deepCopy(obj) {
+    let tmp = JSON.stringify(obj);
+    return JSON.parse(tmp);
+}
