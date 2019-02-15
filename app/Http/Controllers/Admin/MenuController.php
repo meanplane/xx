@@ -14,7 +14,7 @@ class MenuController extends Controller {
     public function index(){
 
         if(!request()->ajax()){
-            return view('admin.menu');
+            return $this->view();
         }
 
         $params = request()->all();

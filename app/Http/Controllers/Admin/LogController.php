@@ -52,5 +52,53 @@ class LogController extends Controller {
         return $this->success('',compact('count','tableData'));
     }
 
+    //详情
+    public function info()
+    {
+        $m = m('admin.log');
+        $info = $m->getInfo(request('id'));
 
+        //上次信息
+        $where=[];
+        $where[]=['menu_id',$info->menu_id];
+        $where[]=['primary_id',$info->primary_id];
+        $where[] = ['id','<',$info->id];
+        $last_id = $m->where($where)->orderBy('id','desc')->value('id');
+
+        if($last_id){
+            $last_info = $m->getInfo($last_id);
+        }else{
+            $last_info=[];
+        }
+
+        $info->data = json_decode($info->data,true);
+
+        if($info->data && $last_info && $last_info->data){
+            $last_info->data = @json_decode($last_info->data,true);
+            $last_info->data = $this->diffArr($info->data,$last_info->data);
+        }
+
+        return $this->success('',compact('info','last_info'));
+
+    }
+    //对比
+    private function diffArr($info,$last_info,$key=''){
+        static $arr;
+        foreach($info as $k=>$v){
+            if(!is_array($v)){
+                if($v!=$last_info[$k]){
+                    if($key){
+                        $arr[$key][$k] ='<font color="red">'.$last_info[$k].'</font>';
+                    }else{
+                        $arr[$k] ='<font color="red">'.$last_info[$k].'</font>';
+                    }
+                }else{
+                    $arr[$k]=$last_info[$k];
+                }
+            }else{
+                return $this->diffArr($v,$last_info[$k],$k);
+            }
+        }
+        return $arr;
+    }
 }

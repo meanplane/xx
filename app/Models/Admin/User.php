@@ -26,17 +26,22 @@ class User extends Authenticatable{
         'info.password' => 'required|min:3|max:10',
     ];
 
-//    public function getLists($where)
-//    {
-//        $res = static::where($where)->orderBy('id', 'desc')->paginate(20);
-//        foreach ($res as $k => $v) {
-//            if ($tmp = m('AdminGroupAccess')->getAdminGroupAccess($v['id'])) {
-//                $res[$k]['groups'] = implode(',', array_column($tmp, 'name'));
-//            }
-//
-//        }
-//        return $res;
-//    }
+    public function getLists($where,$limit,$page)
+    {
+        $query = static::where($where)->orderBy('id', 'desc');
+
+
+        $count = $query->count();
+        $tableData = $query->offset(($page-1)*$limit)
+                            ->limit($limit)->get()->toArray();
+
+        foreach ($tableData as $k => $v) {
+            if ($tmp = m('admin.groupAccess')->getAdminGroupAccess($v['id'])) {
+                $tableData[$k]['groups'] = implode(',', array_column($tmp, 'name'));
+            }
+        }
+        return compact('count','tableData');
+    }
 //
 //
 //    public function getIdName()

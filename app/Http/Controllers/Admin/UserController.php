@@ -11,9 +11,26 @@ namespace App\Http\Controllers\Admin;
 
 class UserController extends Controller {
 
-    public function index(){
-        $menuTree = m('admin.menu')->myMenuTree();
-        return view('admin.index',compact('menuTree'));
+    public function lists(){
+        if(!request()->ajax()){
+            return $this->view();
+        }
+
+        $where = [];
+
+        if (request('title')) {
+            $where[] = ['title', 'like', '%' . request('title') . '%'];
+        }
+        if (request('type')) {
+            $where[] = ['type', request('type')];
+        }
+        if (request('status')) {
+            $where[] = ['status', request('status')];
+        }
+
+        $res = m('admin.user')->getLists($where,request('limit'),request('page'));
+
+        return $this->success('',$res);
     }
 
     // 修改自己信息

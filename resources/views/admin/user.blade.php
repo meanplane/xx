@@ -2,36 +2,22 @@
 <div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;" id="content">
     <div class="title"
          style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px;margin-bottom:30px;">
-        <h3 style="line-height: 1;color: deepskyblue">{{$menu_info->name}}</h3>
+        <h3 style="line-height: 1;color: deepskyblue">{{$menu_info->name or ''}}</h3>
     </div>
 
 
     <el-card shadow="hover" style="margin:auto 30px;">
         <div slot="header" class="clearfix">
             <el-form :inline="true">
-                <el-form-item label="时间">
-                    <el-date-picker
-                            v-model="searchData.timeRange"
-                            type="daterange"
-                            align="right"
-                            unlink-panels
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            :picker-options="pickerOptions"
-                            format="yyyy 年 MM 月 dd 日"
-                            value-format="yyyy-MM-dd"
-                    >
-                    </el-date-picker>
+                <el-form-item label="账号名">
+                    <el-input v-model="searchData.name" placeholder="菜单名"></el-input>
                 </el-form-item>
-                <el-form-item label="菜单名">
-                    <el-input v-model="searchData.menu" placeholder="菜单名"></el-input>
-                </el-form-item>
-                <el-form-item label="操作人">
-                    <el-input v-model="searchData.user" placeholder="操作人"></el-input>
-                </el-form-item>
-                <el-form-item label="ip">
-                    <el-input v-model="searchData.ip" placeholder="ip"></el-input>
+                <el-form-item label="状态" >
+                    <el-select v-model="searchData.status">
+                        <el-option label="全部" value=""></el-option>
+                        <el-option label="正常" value="1"></el-option>
+                        <el-option label="禁用" value="2"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSearch">查询</el-button>
@@ -45,38 +31,53 @@
                 :data="tableData"
                 style="width: 100%">
             <el-table-column
-                    prop="created_at"
-                    label="时间"
-                    :formatter="(row)=>formatTime(row.created_at)"
-                    width="240">
+                    prop="id"
+                    label="ID"
+                    width="50">
             </el-table-column>
             <el-table-column
-                    prop="menu_name"
-                    label="菜单名"
-                    width="200">
+                    prop="name"
+                    label="账号"
+                    width="150">
             </el-table-column>
             <el-table-column
-                    label="请求地址"
-                    :formatter="(row)=> row.c+'/'+row.a "
-                    width="200">
+                    label="真名"
+                    prop="realname"
+                    width="100">
             </el-table-column>
             <el-table-column
-                    prop="ip"
-                    label="IP地址"
-                    width="200">
+                    prop="level"
+                    label="级别"
+                    width="100">
             </el-table-column>
             <el-table-column
-                    prop="admin_name"
-                    label="操作人"
+                    prop="groups"
+                    label="角色"
                     width="200">
             </el-table-column>
+            {{--<el-table-column--}}
+                    {{--label="创建时间"--}}
+                    {{--:formatter="(row)=>formatTime(row.created_at)"--}}
+                    {{--width="200">--}}
+            {{--</el-table-column>--}}
+            {{--<el-table-column--}}
+                    {{--label="修改时间"--}}
+                    {{--:formatter="(row)=>formatTime(row.updated_at)"--}}
+                    {{--width="200">--}}
+            {{--</el-table-column>--}}
             <el-table-column
                     prop="href"
                     label="地址">
                 <template slot-scope="scope">
                     <el-button
                             size="mini"
-                            @click="showInfo(scope.row)">查看</el-button>
+                            @click="showInfo(scope.row)">编辑</el-button>
+                    <el-button
+                            size="mini"
+                            @click="showInfo(scope.row)">修改密码</el-button>
+                    <el-button
+                            size="mini"
+                            @click="showInfo(scope.row)">禁用</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -86,26 +87,15 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="searchData.page"
-                :page-sizes="[10, 20, 30, 40, 50]"
+                :page-sizes="[10,  30,  50, 100]"
                 :page-size="searchData.limit"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total">
         </el-pagination>
     </el-card>
 
-    <el-dialog title="日志详情" :visible.sync="showInfoDialog" center width="1000">
-        <el-row :gutter="24">
-            <el-col :span="12">
-                <el-card>
-                    <h2>info</h2>
-                </el-card>
-            </el-col>
-            <el-col :span="12">
-                <el-card>
-                    <h2>lastInfo</h2>
-                </el-card>
-            </el-col>
-        </el-row>
+    <el-dialog title="" :visible.sync="showInfoDialog" center width="1000">
+
     </el-dialog>
 
 </div>
@@ -117,18 +107,14 @@
         data: function () {
             return {
                 tableData: [],
-                infoData:{},
                 total:0,
                 searchData:{
-                    timeRange:[],
-                    menu:'',
-                    user:'',
-                    ip:'',
+                    name:'',
+                    status:'',
 
                     limit:10,
                     page:1
                 },
-                pickerOptions: pickerOptions(),//时间范围 插件
 
                 showInfoDialog:false,
                 info:{},
@@ -147,18 +133,17 @@
             showInfo(row){
 //                console.log(row)
 //                this.showInfoDialog = true;
-                ajaxPost(this,'/admin/log/info',{id:row.id},null,(res)=>{
-                    console.log(res)
-                })
+//                ajaxPost(this,'/admin/log/info',{id:row.id},null,(res)=>{
+//                    console.log(res)
+//                })
             },
             onSearch(){
-                this._getData();
+//                this._getData();
+                console.log(this.searchData);
             },
             refreshSearch(){
-                this.searchData.timeRange = [];
-                this.searchData.menu = '';
-                this.searchData.user = '';
-                this.searchData.ip = '';
+                this.searchData.name = '';
+                this.searchData.status = '';
 
                 this.searchData.limit = 10;
                 this.searchData.page = 1;
@@ -166,7 +151,7 @@
                 this._getData();
             },
             _getData(){
-                ajaxPost(this, '/admin/log/lists', this.searchData , null, (res) => {
+                ajaxPost(this, '/admin/user/lists', this.searchData , null, (res) => {
                     this.tableData = res.tableData;
                     this.total = res.count;
                 })
