@@ -72,18 +72,26 @@ function ajaxPost(_this,url,params,loadingTitle,func) {
     axios.post(url,params,{headers:{'X-Requested-With':'XMLHttpRequest'}})
         .then((res)=>{
             if(res.data && res.data.code && res.data.code == 1){
-                _this.$message.success(res.data.msg);
+                _this.$message.success(dealMsg(res.data.msg));
                 if(func){
                     func(res.data.data)
                 }
             }else{
-                _this.$message.error(res.data.msg);
+                _this.$message.error(dealMsg(res.data.msg));
             }
         }).catch((err)=>{
-            _this.$message.error(err);
+            _this.$message.error(dealMsg(err));
         }).finally(()=>{
             loading.close();
         })
+}
+
+function dealMsg(msg) {
+    if(msg === msg+''){
+        return msg;
+    }else{
+        return JSON.stringify(msg);
+    }
 }
 
 function ajaxGet() {

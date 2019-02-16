@@ -60,8 +60,7 @@ class GroupAccess extends Model{
         $res = static::select('t2.id', 't2.name')
             ->from('admin_group_access as t1')
             ->leftJoin('admin_group as t2', 't1.group_id', '=', 't2.id')
-            ->where($where)->get()->toArray();
-        //echo implode(',',array_column($res,'id'));
+            ->where($where)->pluck('id')->toArray();
 
         return $res;
     }
