@@ -1,49 +1,12 @@
-
+@include('common.table')
+@include('common.editDialog')
 <div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;" id="content">
     <div class="title"
          style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px;margin-bottom:30px;">
         <h3 style="line-height: 1;color: deepskyblue">{{$menu_info->name}}</h3>
     </div>
-
-
-    <el-card shadow="hover" style="margin:auto 30px;">
-        <div slot="header" class="clearfix">
-            <el-form :inline="true">
-                <el-form-item label="时间">
-                    <el-date-picker
-                            v-model="searchData.timeRange"
-                            type="daterange"
-                            align="right"
-                            unlink-panels
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            :picker-options="pickerOptions"
-                            format="yyyy 年 MM 月 dd 日"
-                            value-format="yyyy-MM-dd"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="菜单名">
-                    <el-input v-model="searchData.menu" placeholder="菜单名"></el-input>
-                </el-form-item>
-                <el-form-item label="操作人">
-                    <el-input v-model="searchData.user" placeholder="操作人"></el-input>
-                </el-form-item>
-                <el-form-item label="ip">
-                    <el-input v-model="searchData.ip" placeholder="ip"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSearch">查询</el-button>
-                    <el-button @click="refreshSearch">重置查询</el-button>
-                </el-form-item>
-
-            </el-form>
-        </div>
-
-        <el-table
-                :data="tableData"
-                style="width: 100%">
+    <mp-table :show-search="true" :search-opts="searchOpts" :search-url="'/admin/log/lists'" ref="mpTable">
+        <template slot="tb-content">
             <el-table-column
                     prop="created_at"
                     label="时间"
@@ -76,22 +39,14 @@
                 <template slot-scope="scope">
                     <el-button
                             size="mini"
-                            @click="showInfo(scope.row)">查看</el-button>
+                            @click="showInfo(scope.row)">查看
+                    </el-button>
+                    <el-button @click="xx">xx</el-button>
                 </template>
             </el-table-column>
-        </el-table>
-        <el-pagination
-                style="margin-top: 30px;margin-left:40px;"
-                background
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="searchData.page"
-                :page-sizes="[10, 20, 30, 40, 50]"
-                :page-size="searchData.limit"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-        </el-pagination>
-    </el-card>
+        </template>
+    </mp-table>
+
 
     <el-dialog title="日志详情" :visible.sync="showInfoDialog" center width="1000">
         <el-row :gutter="24">
@@ -116,67 +71,35 @@
         el: '#content',
         data: function () {
             return {
-                tableData: [],
-                infoData:{},
-                total:0,
-                searchData:{
-                    timeRange:[],
-                    menu:'',
-                    user:'',
-                    ip:'',
+                searchOpts: [
+                    // {label:'账号名',type:'input',place:'菜单名',word:'name',default:''},
+                    // {label:'状态',type:'select',options:{'':'全部',1:'正常',2:'禁用'},word:'status',default:''}
+                    {label: '操作时间', type: 'range', word: 'timeRange', default: []},
+                    {label: '菜单名', type: 'input', place: '菜单名', word: 'menu', default: ''},
+                    {label: '操作人', type: 'input', place: '操作人账号', word: 'user', default: ''},
+                    {label: 'ip', type: 'input', place: 'ip地址', word: 'ip', default: ''},
+                ],
 
-                    limit:10,
-                    page:1
-                },
-                pickerOptions: pickerOptions(),//时间范围 插件
-
-                showInfoDialog:false,
-                info:{},
-                last_info:{}
+                showInfoDialog: false,
+                info: {},
+                last_info: {}
             }
         },
         methods: {
-            handleSizeChange(val) {
-                this.searchData.limit = val;
-                this._getData();
+            formatTime(row) {
+                return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
             },
-            handleCurrentChange(val) {
-                this.searchData.page = val;
-                this._getData();
-            },
-            showInfo(row){
+            showInfo(row) {
 //                console.log(row)
 //                this.showInfoDialog = true;
-                ajaxPost(this,'/admin/log/info',{id:row.id},null,(res)=>{
+                ajaxPost(this, '/admin/log/info', {id: row.id}, null, (res) => {
                     console.log(res)
                 })
             },
-            onSearch(){
-                this._getData();
-            },
-            refreshSearch(){
-                this.searchData.timeRange = [];
-                this.searchData.menu = '';
-                this.searchData.user = '';
-                this.searchData.ip = '';
-
-                this.searchData.limit = 10;
-                this.searchData.page = 1;
-
-                this._getData();
-            },
-            _getData(){
-                ajaxPost(this, '/admin/log/lists', this.searchData , null, (res) => {
-                    this.tableData = res.tableData;
-                    this.total = res.count;
-                })
-            },
-            formatTime(row){
-                return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
+            xx(){
+                console.log(this.$refs.mpTable.searchData)
             }
-        },
-        created() {
-           this._getData();
+
         }
     })
 

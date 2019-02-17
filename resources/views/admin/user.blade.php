@@ -71,7 +71,7 @@
                     prop="href"
                     label="操作"
                     align="center"
-                    width="280">
+                    width="320">
                 <template slot-scope="scope">
                     <el-button-group>
                         <el-button
@@ -89,7 +89,6 @@
                                    @click="disableUser(scope.row.id,1)">解禁
                         </el-button>
                     </el-button-group>
-
                     <el-button size="mini" type="danger"
                                @click="delUser(scope.row.id)">删除
                     </el-button>
@@ -289,6 +288,7 @@
                 this.showEditPassDialog = false;
                 ajaxPost(this,'/admin/user/changePwd',this.editPass)
             },
+
             // 禁用
             disableUser(id,status) {
                 var msg = (status === 1) ?'确定要解除禁用吗？':'确定要封禁吗？';

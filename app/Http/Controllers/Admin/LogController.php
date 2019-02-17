@@ -29,7 +29,7 @@ class LogController extends Controller {
             $where[] = ['t3.name','like' ,'%'. request('user') . '%'];
         }
         if (request('ip')) {
-            $where[] = ['t1.ip', request('ip')];
+            $where[] = ['t1.ip','like','%'. request('ip').'%'];
         }
 
         // 分页
