@@ -15,38 +15,34 @@
             </el-table-column>
             <el-table-column
                     prop="menu_name"
-                    label="菜单名"
-                    width="200">
+                    label="菜单名">
             </el-table-column>
             <el-table-column
                     label="请求地址"
-                    :formatter="(row)=> row.c+'/'+row.a "
-                    width="200">
+                    :formatter="(row)=> row.c+'/'+row.a ">
             </el-table-column>
             <el-table-column
                     prop="ip"
-                    label="IP地址"
-                    width="200">
+                    label="IP地址">
             </el-table-column>
             <el-table-column
                     prop="admin_name"
-                    label="操作人"
-                    width="200">
+                    label="操作人">
             </el-table-column>
             <el-table-column
                     prop="href"
-                    label="地址">
+                    label="操作"
+                    width="100"
+                    align="center">
                 <template slot-scope="scope">
                     <el-button
                             size="mini"
                             @click="showInfo(scope.row)">查看
                     </el-button>
-                    <el-button @click="xx">xx</el-button>
                 </template>
             </el-table-column>
         </template>
     </mp-table>
-
 
     <el-dialog title="日志详情" :visible.sync="showInfoDialog" center width="1000">
         <el-row :gutter="24">
@@ -62,11 +58,9 @@
             </el-col>
         </el-row>
     </el-dialog>
-
 </div>
 
 <script>
-
     new Vue({
         el: '#content',
         data: function () {
@@ -96,11 +90,6 @@
                     console.log(res)
                 })
             },
-            xx(){
-                console.log(this.$refs.mpTable.searchData)
-            }
-
         }
     })
-
 </script>

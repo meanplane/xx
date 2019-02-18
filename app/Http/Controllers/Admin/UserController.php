@@ -15,7 +15,11 @@ class UserController extends Controller
     public function lists()
     {
         if (!request()->ajax()) {
-            return $this->view();
+            $roles = m('admin.group')->pluck('name', 'id')->toArray();
+            $levels = [1 => '普通', 2 => '主管', 3 => '经理'];
+            $statuss = [1 => '正常', 2 => '禁用'];
+
+            return $this->view(compact('roles', 'levels', 'statuss'));
         }
 
         $where = [];
@@ -31,9 +35,6 @@ class UserController extends Controller
         }
 
         $res = m('admin.user')->getLists($where, request('limit'), request('page'));
-        $res['roles'] = m('admin.group')->pluck('name', 'id')->toArray();
-        $res['levels'] = [1 => '普通', 2 => '主管', 3 => '经理'];
-
         return $this->success('', $res);
     }
 

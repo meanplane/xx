@@ -1,33 +1,17 @@
+@include('common.table')
+@include('common.editDialog')
 <div class="right-content" style=" width: 100%;height: 100%;padding: 20px;box-sizing: border-box;" id="content">
     <div class="title"
          style="line-height: 40px;border-bottom: 1px solid #c1c1c1;padding-bottom: 20px;margin-bottom:30px;">
         <h3 style="line-height: 1;color: deepskyblue">{{$menu_info->name or ''}}</h3>
     </div>
 
-    <el-card shadow="hover" style="margin:auto 30px;">
-        <div slot="header" class="clearfix">
-            <el-form :inline="true">
-                <el-form-item label="账号名">
-                    <el-input v-model="searchData.name" placeholder="菜单名"></el-input>
-                </el-form-item>
-                <el-form-item label="状态">
-                    <el-select v-model="searchData.status">
-                        <el-option label="全部" value=""></el-option>
-                        <el-option label="正常" value="1"></el-option>
-                        <el-option label="禁用" value="2"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSearch">查询</el-button>
-                    <el-button @click="refreshSearch">重置查询</el-button>
-                    <el-button @click="showAdd" type="primary" style="margin-left:60px;">新增管理员</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-
-        <el-table
-                :data="tableData"
-                style="width: 100%">
+    <mp-table :show-search="true" :search-opts="searchOpts" search-url="/admin/user/lists" ref="mpTable">
+        <template slot="extra-btns">
+            <el-button @click="showAdd" type="primary" style="margin-left:60px;">新增管理员</el-button>
+            <el-button @click="()=>this.$refs.mpDialog.showEdit()" type="primary" style="margin-left:60px;">test</el-button>
+        </template>
+        <template slot="tb-content">
             <el-table-column
                     prop="id"
                     label="ID"
@@ -83,7 +67,7 @@
                                 @click="showEditPass(scope.row)">修改密码
                         </el-button>
                         <el-button v-if="scope.row.status == 1" size="mini" type="danger" plain
-                                @click="disableUser(scope.row.id,2)">禁用
+                                   @click="disableUser(scope.row.id,2)">禁用
                         </el-button>
                         <el-button v-else size="mini" type="success" plain
                                    @click="disableUser(scope.row.id,1)">解禁
@@ -94,19 +78,8 @@
                     </el-button>
                 </template>
             </el-table-column>
-        </el-table>
-        <el-pagination
-                style="margin-top: 30px;margin-left:40px;"
-                background
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="searchData.page"
-                :page-sizes="[10,  30,  50, 100]"
-                :page-size="searchData.limit"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="total">
-        </el-pagination>
-    </el-card>
+        </template>
+    </mp-table>
 
     {{-- 添加用户 --}}
     <el-dialog :title="editTitle" :visible.sync="showEditDialog" center width="1000">
@@ -156,36 +129,42 @@
         </div>
     </el-dialog>
 
+    {{--<mp-edit-dialog ref="mpDialog"></mp-edit-dialog>--}}
 </div>
 
 <script>
-    var _editData = {
-        name: '',
-        password: '',
-        realname: '',
-        mobile: '',
-        level: 1,
-        groups: [],
-        status: 1
+    var _editData={
+        name:'',
+        password:'',
+        realname:'',
+        mobile:'',
+        level:1,
+        groups:[],
+        status:1
     };
-
     new Vue({
         el: '#content',
         data: function () {
             return {
-                levels: {},
-                statuss: {1:'正常',2:'禁用'},
-                tableData: [],
-                total: 0,
-                searchData: {
-                    name: '',
-                    status: '',
+                levels: @json($levels),
+                roles: @json($roles),
+                statuss: @json($statuss),
 
-                    limit: 10,
-                    page: 1
-                },
+                searchOpts: [
+                     {label:'账号名',type:'input',place:'菜单名',word:'name',default:''},
+                     {label:'状态',type:'select',options:{'':'全部',1:'正常',2:'禁用'},word:'status',default:''}
+                ],
+                editOpts:[
+                    {label:'账号名',type:'input',place:'账号名',word:'name',default:''},
+                    {label:'密码',type:'input',place:'密码',word:'password',default:''},
+                    {label:'真实姓名',type:'input',place:'姓名',word:'realname',default:''},
+                    {label:'手机号',type:'input',place:'手机号',word:'mobile',default:''},
 
-                roles: {},
+                    {label:'级别',type:'select',options:deepCopy(this.levels),word:'level',default:1},
+                    {label:'角色',type:'check',options:deepCopy(this.roles),word:'groups',default:[]},
+                    {label:'状态',type:'select',options:deepCopy(this.status),word:'status',default:1},
+                ],
+
 
                 showEditDialog: false,
                 editTitle: '',
@@ -200,34 +179,7 @@
             }
         },
         methods: {
-            handleSizeChange(val) {
-                this.searchData.limit = val;
-                this._getData();
-            },
-            handleCurrentChange(val) {
-                this.searchData.page = val;
-                this._getData();
-            },
-            onSearch() {
-                this._getData();
-            },
-            refreshSearch() {
-                this.searchData.name = '';
-                this.searchData.status = '';
-
-                this.searchData.limit = 10;
-                this.searchData.page = 1;
-
-                this._getData();
-            },
-            _getData() {
-                ajaxPost(this, '/admin/user/lists', this.searchData, null, (res) => {
-                    this.tableData = res.tableData;
-                    this.roles = res.roles;
-                    this.levels = res.levels;
-                    this.total = res.count;
-                })
-            },
+            // table format
             formatTime(row) {
                 return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
             },
@@ -258,19 +210,16 @@
                 delete(this.editData.password);
                 this.editData.id = row.id;
                 this.editData.groups = this.editData.groups || [];
-
-                console.log(this.editData);
             },
             onSubmit(){
                 this.showEditDialog = false;
-                console.log(this.editData);
                 if(this.editData.id){
                     ajaxPost(this, '/admin/user/edit', this.editData, null, () => {
-                        this._getData();
+                        this.$refs.mpTable._getData();
                     })
                 }else{
                     ajaxPost(this, '/admin/user/add', this.editData, null, () => {
-                        this._getData();
+                        this.$refs.mpTable._getData();
                     })
                 }
             },
@@ -294,7 +243,7 @@
                 var msg = (status === 1) ?'确定要解除禁用吗？':'确定要封禁吗？';
                 this.$confirm(msg).then(()=>{
                     ajaxPost(this,'/admin/user/edit',{id,status},null,()=>{
-                        this._getData();
+                        this.$refs.mpTable._getData();
                     })
                 })
             },
@@ -303,13 +252,10 @@
             delUser(id){
                 this.$confirm('确定要删除此账号吗？').then(()=>{
                     ajaxPost(this,'/admin/user/del',{id},null,()=>{
-                        this._getData();
+                        this.$refs.mpTable._getData();
                     })
                 })
             }
-        },
-        created() {
-            this._getData();
         }
     })
 

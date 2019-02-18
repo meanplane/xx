@@ -3,9 +3,9 @@
     <el-card shadow="hover" style="margin:auto 30px;">
         <div slot="header" class="clearfix" v-if="showSearch">
             <el-form :inline="true">
-                <el-form-item v-for="item in searchOpts" :label="item.label">
+                <el-form-item v-for="(item ,index) in searchOpts"  :key="index" :label="item.label">
                     <el-input v-if="item.type == 'input'" :placeholder="item.place"
-                              v-model="searchData[item.word]"></el-input>
+                              v-model="searchData[item.word]" size="mini"></el-input>
 
                     <el-date-picker v-else-if="item.type == 'range'" v-model="searchData[item.word]"
                             type="daterange"
@@ -16,17 +16,18 @@
                             end-placeholder="结束日期"
                             :picker-options="pickerOptions"
                             format="yyyy 年 MM 月 dd 日"
-                            value-format="yyyy-MM-dd">
+                            value-format="yyyy-MM-dd"
+                            size="mini">
                     </el-date-picker>
 
-                    <el-select v-else-if="item.type == 'select'" v-model="searchData[item.word]">
+                    <el-select v-else-if="item.type == 'select'" v-model="searchData[item.word]" size="mini">
                         <el-option v-for="(opt,k) in item.options" :label="opt" :value="k" :key="k"></el-option>
                     </el-select>
                 </el-form-item>
 
                 <el-form-item>
-                    <el-button type="primary" @click="onSearch">查询</el-button>
-                    <el-button @click="refreshSearch">重置查询</el-button>
+                    <el-button type="primary" @click="onSearch" size="mini">查询</el-button>
+                    <el-button @click="refreshSearch" size="mini">重置查询</el-button>
 
                     {{--额外按钮--}}
                     <slot name="extra-btns"></slot>
@@ -35,7 +36,7 @@
         </div>
 
 
-        <el-table :data="tableData" style="width: 100%">
+        <el-table :data="tableData" style="width: 100%" size="mini">
             <slot name="tb-content"></slot>
         </el-table>
 
@@ -62,34 +63,33 @@
                 tableData: [],
 
                 // 时间范围插件
-                // pickerOptions:{
-                //     shortcuts: [{
-                //         text: '最近一周',
-                //         onClick(picker) {
-                //             const end = new Date();
-                //             const start = new Date();
-                //             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                //             picker.$emit('pick', [start, end]);
-                //         }
-                //     }, {
-                //         text: '最近一个月',
-                //         onClick(picker) {
-                //             const end = new Date();
-                //             const start = new Date();
-                //             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                //             picker.$emit('pick', [start, end]);
-                //         }
-                //     }, {
-                //         text: '最近三个月',
-                //         onClick(picker) {
-                //             const end = new Date();
-                //             const start = new Date();
-                //             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                //             picker.$emit('pick', [start, end]);
-                //         }
-                //     }]
-                // }
-                pickerOptions:pickerOptions()
+                 pickerOptions:{
+                     shortcuts: [{
+                         text: '最近一周',
+                         onClick(picker) {
+                             const end = new Date();
+                             const start = new Date();
+                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                             picker.$emit('pick', [start, end]);
+                         }
+                     }, {
+                         text: '最近一个月',
+                         onClick(picker) {
+                             const end = new Date();
+                             const start = new Date();
+                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                             picker.$emit('pick', [start, end]);
+                         }
+                     }, {
+                         text: '最近三个月',
+                         onClick(picker) {
+                             const end = new Date();
+                             const start = new Date();
+                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                             picker.$emit('pick', [start, end]);
+                         }
+                     }]
+                 },
             }
         },
         template: '#mp-table-template',
@@ -120,9 +120,8 @@
         created() {
             // 初始化 searchData
             for (var opt of this.searchOpts) {
-                this.searchData[opt.word] = opt.default;
+                this.$set( this.searchData,opt.word,opt.default);
             }
-
             this.searchData['page'] = 1;
             this.searchData['limit'] = 10;
             this._searchData = deepCopy(this.searchData);
