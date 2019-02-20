@@ -125,7 +125,7 @@
                             placement="top-start"
                             width="200"
                             trigger="hover"
-                            content="添加菜单时，控制器为lists，则自动添加 add,del,edit(不显示)">
+                            content="添加菜单时，方法名 为lists，则自动添加 add,del,edit(不显示)">
                         <el-input slot="reference" v-model="editData.a"></el-input>
                     </el-popover>
                 </el-form-item>

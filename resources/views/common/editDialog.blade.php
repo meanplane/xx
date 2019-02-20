@@ -1,36 +1,6 @@
 {{-- 添加，编辑对话框  mp-edit-dialog --}}
 <script type="text/x-template" id="mp-edit-dialog-template">
     <el-dialog :title="editTitle" :visible.sync="showEditDialog" center width="600">
-        {{--<el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">--}}
-            {{--<el-form-item label="账号">--}}
-                {{--<el-input v-model="editData.name"></el-input>--}}
-            {{--</el-form-item>--}}
-            {{--<el-form-item label="密码" >--}}
-                {{--<el-input v-model="editData.password" :disabled="showPass"></el-input>--}}
-            {{--</el-form-item>--}}
-            {{--<el-form-item label="真实姓名">--}}
-                {{--<el-input v-model="editData.realname"></el-input>--}}
-            {{--</el-form-item>--}}
-            {{--<el-form-item label="手机号">--}}
-                {{--<el-input v-model="editData.mobile"></el-input>--}}
-            {{--</el-form-item>--}}
-            {{--<el-form-item label="级别">--}}
-                {{--<el-select v-model="editData.level">--}}
-                    {{--<el-option v-for="(name,key) in levels" :label="name" :value="Number(key)"></el-option>--}}
-                {{--</el-select>--}}
-            {{--</el-form-item>--}}
-
-            {{--<el-form-item label="角色">--}}
-                {{--<el-checkbox-group v-model="editData.groups">--}}
-                    {{--<el-checkbox v-for="(name,key) in roles" :label="Number(key)" :key="Number(key)">@{{name}}</el-checkbox>--}}
-                {{--</el-checkbox-group>--}}
-            {{--</el-form-item>--}}
-            {{--<el-form-item label="状态">--}}
-                {{--<el-select v-model="editData.status">--}}
-                    {{--<el-option v-for="(name,key) in statuss" :label="name" :value="Number(key)"></el-option>--}}
-                {{--</el-select>--}}
-            {{--</el-form-item>--}}
-        {{--</el-form>--}}
         <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
             <el-form-item v-for="(item,index) in editOpts" :key="index" :label="item.label" >
                 <el-input v-if="item.type == 'input'" :placeholder="item.place"
@@ -42,7 +12,7 @@
                 </el-select>
 
                 <el-checkbox-group v-else-if="item.type == 'check'" v-model="editData[item.word]">
-                    <el-checkbox v-for="(name,k) in item.options" :label="name" :value="(item.keyType == 'Number')?Number(k):k" :key="k" ></el-checkbox>
+                    <el-checkbox v-for="(name,k) in item.options" :label="(item.keyType == 'Number')?Number(k):k" :key="k">@{{ name }}</el-checkbox>
                 </el-checkbox-group>
             </el-form-item>
         </el-form>
@@ -63,31 +33,45 @@
             }
         },
         template: '#mp-edit-dialog-template',
-        props:['editOpts'],
+        props:['editOpts','editUrl','addUrl','getData'],
         methods:{
             showEdit(row){
                 this.showEditDialog = true;
                 this.editTitle = '编辑';
 
-                this.editData = deepCopy(_editData);
+                this.editData = deepCopy(this._editData);
                 for(k in this.editData){
-                    this.editData[k] = deepCopy(row[k]);
+                    if(!row[k]) // 解决 groups没有时 赋值为undefined 出bug
+                        continue;
+                    this.editData[k] = Array.isArray(row[k])?deepCopy(row[k]):row[k];
                 }
+                this.editData.id = row.id;
             },
             showAdd(){
                 this.showEditDialog = true;
                 this.editTitle = '添加';
 
-                this.editData = deepCopy(_editData);
+                this.editData = deepCopy(this._editData);
             },
             onSubmit(){
                 this.showEditDialog = false;
-                console.log(this.editData)
+                if(this.editData.id){
+                    ajaxPost(this,this.editUrl,this.editData,'修改数据..',()=>{
+                        if(this.getData){
+                            this.getData();
+                        }
+                    })
+                }else{
+                    ajaxPost(this,this.addUrl,this.editData,'新增数据..',()=>{
+                        if(this.getData){
+                            this.getData();
+                        }
+                    })
+                }
             },
         },
         created(){
             // 初始化 editData
-            console.log(this.editOpts);
             for (var opt of this.editOpts) {
                 this.$set( this.editData,opt.word,opt.default);
             }

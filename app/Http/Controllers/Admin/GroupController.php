@@ -10,15 +10,11 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\Validator;
 
-class UserController extends Controller
+class GroupController extends Controller
 {
     public function lists()
     {
         if (!request()->ajax()) {
-            $roles = m('admin.group')->pluck('name', 'id')->toArray();
-            $levels = [1 => '普通', 2 => '主管', 3 => '经理'];
-            $statuss = [1 => '正常', 2 => '禁用'];
-
             return $this->view(compact('roles', 'levels', 'statuss'));
         }
 
@@ -96,27 +92,4 @@ class UserController extends Controller
         return $this->error();
     }
 
-    public function changePwd()
-    {
-        $info = m('admin.user')->find(request('id'));
-
-        if (!$info) {
-            return $this->error('非法请求');
-        }
-
-        $validator = Validator::make(request()->all(), [
-            'password' => 'required|min:3|max:20',
-        ], [
-            'password.required' => '密码不能为空',
-        ]);
-        if ($validator->fails()) {
-            return $this->error($validator->errors());
-        }
-
-        $res = m('admin.user')->where('id', request('id'))->update(['password' => bcrypt(request('password'))]);
-        if ($res) {
-            return $this->success('修改成功');
-        }
-        return $this->error();
-    }
 }

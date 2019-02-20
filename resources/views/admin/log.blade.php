@@ -66,8 +66,6 @@
         data: function () {
             return {
                 searchOpts: [
-                    // {label:'账号名',type:'input',place:'菜单名',word:'name',default:''},
-                    // {label:'状态',type:'select',options:{'':'全部',1:'正常',2:'禁用'},word:'status',default:''}
                     {label: '操作时间', type: 'range', word: 'timeRange', default: []},
                     {label: '菜单名', type: 'input', place: '菜单名', word: 'menu', default: ''},
                     {label: '操作人', type: 'input', place: '操作人账号', word: 'user', default: ''},

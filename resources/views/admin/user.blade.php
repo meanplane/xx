@@ -80,7 +80,7 @@
             </el-table-column>
         </template>
     </mp-table>
-    <mp-edit-dialog :edit-opts="editOpts" ref="mpDialog"></mp-edit-dialog>
+    <mp-edit-dialog :edit-opts="editOpts" edit-url="/admin/user/edit" add-url="/admin/user/add" :get-data="_getData" ref="mpDialog"></mp-edit-dialog>
 
     <el-dialog title="修改密码" :visible.sync="showEditPassDialog" center width="500">
         <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
@@ -96,15 +96,6 @@
 </div>
 
 <script>
-    var _editData={
-        name:'',
-        password:'',
-        realname:'',
-        mobile:'',
-        level:1,
-        groups:[],
-        status:1
-    };
     _levels = @json($levels);
     _roles = @json($roles);
     _statuss = @json($statuss);
@@ -121,28 +112,19 @@
                      {label:'账号名',type:'input',place:'菜单名',word:'name',default:''},
                      {label:'状态',type:'select',options:{'':'全部',1:'正常',2:'禁用'},word:'status',default:''}
                 ],
+
                 editOpts:[
                     {label:'账号名',type:'input',place:'账号名',word:'name',default:''},
-                    {label:'密码',type:'input',place:'密码',word:'password',default:''},
                     {label:'真实姓名',type:'input',place:'姓名',word:'realname',default:''},
                     {label:'手机号',type:'input',place:'手机号',word:'mobile',default:''},
 
                     {label:'级别',type:'select',options:_levels,word:'level',default:1,keyType:'Number'},
-                    {label:'角色',type:'check',options:_roles,word:'groups',default:[]},
+                    {label:'角色',type:'check',options:_roles,word:'groups',default:[],keyType:'Number'},
                     {label:'状态',type:'select',options:_statuss,word:'status',default:1,keyType:'Number'},
                 ],
 
-
-                showEditDialog: false,
-                editTitle: '',
-                editData: deepCopy(_editData),
-                showPass:true,
-
                 showEditPassDialog: false,
-                editPass: {
-                    id:'',
-                    password:'',
-                }
+                editPass: {id:'', password:''}
             }
         },
         methods: {
@@ -162,40 +144,13 @@
             },
 
             showEdit(row){
-                console.log(row);
                 this.$refs.mpDialog.showEdit(row);
             },
 
-//            showAdd() {
-//                this.showEditDialog = true;
-//                this.showPass = false;
-//                this.editTitle = '添加管理员';
-//                this.editData = deepCopy(_editData);
-//            },
-//            showEdit(row) {
-//                this.showEditDialog = true;
-//                this.showPass = true;
-//                this.editTitle = '编辑管理员';
-//                for(var k in this.editData){
-//                    this.editData[k] = row[k];
-//                }
-//                delete(this.editData.password);
-//                this.editData.id = row.id;
-//                this.editData.groups = this.editData.groups || [];
-//            },
-//            onSubmit(){
-//                this.showEditDialog = false;
-//                if(this.editData.id){
-//                    ajaxPost(this, '/admin/user/edit', this.editData, null, () => {
-//                        this.$refs.mpTable._getData();
-//                    })
-//                }else{
-//                    ajaxPost(this, '/admin/user/add', this.editData, null, () => {
-//                        this.$refs.mpTable._getData();
-//                    })
-//                }
-//            },
-//
+            _getData(){
+                this.$refs.mpTable._getData();
+            },
+
             showEditPass(row) {
                 this.showEditPassDialog = true;
                 this.editPass.id = row.id;
