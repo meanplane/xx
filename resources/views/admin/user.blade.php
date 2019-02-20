@@ -8,8 +8,8 @@
 
     <mp-table :show-search="true" :search-opts="searchOpts" search-url="/admin/user/lists" ref="mpTable">
         <template slot="extra-btns">
-            <el-button @click="showAdd" type="primary" style="margin-left:60px;">新增管理员</el-button>
-            <el-button @click="()=>this.$refs.mpDialog.showEdit()" type="primary" style="margin-left:60px;">test</el-button>
+            {{--<el-button @click="showAdd" type="primary" style="margin-left:60px;">新增管理员</el-button>--}}
+            <el-button @click="()=>this.$refs.mpDialog.showAdd()" type="primary" style="margin-left:60px;" size="mini">新增管理员</el-button>
         </template>
         <template slot="tb-content">
             <el-table-column
@@ -80,43 +80,7 @@
             </el-table-column>
         </template>
     </mp-table>
-
-    {{-- 添加用户 --}}
-    <el-dialog :title="editTitle" :visible.sync="showEditDialog" center width="1000">
-        <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
-            <el-form-item label="账号">
-                <el-input v-model="editData.name"></el-input>
-            </el-form-item>
-            <el-form-item label="密码" >
-                <el-input v-model="editData.password" :disabled="showPass"></el-input>
-            </el-form-item>
-            <el-form-item label="真实姓名">
-                <el-input v-model="editData.realname"></el-input>
-            </el-form-item>
-            <el-form-item label="手机号">
-                <el-input v-model="editData.mobile"></el-input>
-            </el-form-item>
-            <el-form-item label="级别">
-                <el-select v-model="editData.level">
-                    <el-option v-for="(name,key) in levels" :label="name" :value="Number(key)"></el-option>
-                </el-select>
-            </el-form-item>
-
-            <el-form-item label="角色">
-                <el-checkbox-group v-model="editData.groups">
-                    <el-checkbox v-for="(name,key) in roles" :label="Number(key)" :key="Number(key)">@{{name}}</el-checkbox>
-                </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="状态">
-                <el-select v-model="editData.status">
-                    <el-option v-for="(name,key) in statuss" :label="name" :value="Number(key)"></el-option>
-                </el-select>
-            </el-form-item>
-        </el-form>
-        <div style="text-align: center">
-            <el-button type="primary" @click="onSubmit">确定</el-button>
-        </div>
-    </el-dialog>
+    <mp-edit-dialog :edit-opts="editOpts" ref="mpDialog"></mp-edit-dialog>
 
     <el-dialog title="修改密码" :visible.sync="showEditPassDialog" center width="500">
         <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
@@ -129,7 +93,6 @@
         </div>
     </el-dialog>
 
-    {{--<mp-edit-dialog ref="mpDialog"></mp-edit-dialog>--}}
 </div>
 
 <script>
@@ -142,6 +105,10 @@
         groups:[],
         status:1
     };
+    _levels = @json($levels);
+    _roles = @json($roles);
+    _statuss = @json($statuss);
+
     new Vue({
         el: '#content',
         data: function () {
@@ -160,9 +127,9 @@
                     {label:'真实姓名',type:'input',place:'姓名',word:'realname',default:''},
                     {label:'手机号',type:'input',place:'手机号',word:'mobile',default:''},
 
-                    {label:'级别',type:'select',options:deepCopy(this.levels),word:'level',default:1},
-                    {label:'角色',type:'check',options:deepCopy(this.roles),word:'groups',default:[]},
-                    {label:'状态',type:'select',options:deepCopy(this.status),word:'status',default:1},
+                    {label:'级别',type:'select',options:_levels,word:'level',default:1,keyType:'Number'},
+                    {label:'角色',type:'check',options:_roles,word:'groups',default:[]},
+                    {label:'状态',type:'select',options:_statuss,word:'status',default:1,keyType:'Number'},
                 ],
 
 
@@ -194,35 +161,40 @@
                 return str.slice(0,-3);
             },
 
-            showAdd() {
-                this.showEditDialog = true;
-                this.showPass = false;
-                this.editTitle = '添加管理员';
-                this.editData = deepCopy(_editData);
+            showEdit(row){
+                console.log(row);
+                this.$refs.mpDialog.showEdit(row);
             },
-            showEdit(row) {
-                this.showEditDialog = true;
-                this.showPass = true;
-                this.editTitle = '编辑管理员';
-                for(var k in this.editData){
-                    this.editData[k] = row[k];
-                }
-                delete(this.editData.password);
-                this.editData.id = row.id;
-                this.editData.groups = this.editData.groups || [];
-            },
-            onSubmit(){
-                this.showEditDialog = false;
-                if(this.editData.id){
-                    ajaxPost(this, '/admin/user/edit', this.editData, null, () => {
-                        this.$refs.mpTable._getData();
-                    })
-                }else{
-                    ajaxPost(this, '/admin/user/add', this.editData, null, () => {
-                        this.$refs.mpTable._getData();
-                    })
-                }
-            },
+
+//            showAdd() {
+//                this.showEditDialog = true;
+//                this.showPass = false;
+//                this.editTitle = '添加管理员';
+//                this.editData = deepCopy(_editData);
+//            },
+//            showEdit(row) {
+//                this.showEditDialog = true;
+//                this.showPass = true;
+//                this.editTitle = '编辑管理员';
+//                for(var k in this.editData){
+//                    this.editData[k] = row[k];
+//                }
+//                delete(this.editData.password);
+//                this.editData.id = row.id;
+//                this.editData.groups = this.editData.groups || [];
+//            },
+//            onSubmit(){
+//                this.showEditDialog = false;
+//                if(this.editData.id){
+//                    ajaxPost(this, '/admin/user/edit', this.editData, null, () => {
+//                        this.$refs.mpTable._getData();
+//                    })
+//                }else{
+//                    ajaxPost(this, '/admin/user/add', this.editData, null, () => {
+//                        this.$refs.mpTable._getData();
+//                    })
+//                }
+//            },
 //
             showEditPass(row) {
                 this.showEditPassDialog = true;
