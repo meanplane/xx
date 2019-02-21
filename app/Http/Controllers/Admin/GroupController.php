@@ -20,18 +20,19 @@ class GroupController extends Controller
 
         $where = [];
 
-        if (request('title')) {
-            $where[] = ['title', 'like', '%' . request('title') . '%'];
-        }
-        if (request('type')) {
-            $where[] = ['type', request('type')];
-        }
-        if (request('status')) {
-            $where[] = ['status', request('status')];
+        if (request('name')) {
+            $where[] = ['name', 'like', '%' . request('name') . '%'];
         }
 
-        $res = m('admin.user')->getLists($where, request('limit'), request('page'));
-        return $this->success('', $res);
+        $limit = request('limit',10);
+        $page = request('page',1);
+
+        $query = m('admin.group')->where($where)->orderBy('id','desc');
+        $count = $query->count();
+        $tableData = $query->offset(($page-1)*$limit)
+            ->limit($limit)->get()->toArray();
+
+        return $this->success('', compact('count','tableData'));
     }
 
     public function add()
