@@ -8,14 +8,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Support\Facades\Validator;
-
 class GroupController extends Controller
 {
     public function lists()
     {
         if (!request()->ajax()) {
-            return $this->view(compact('roles', 'levels', 'statuss'));
+            $allMenus = m('admin.menu')->allMenuTree([])['allMenus'];
+            return $this->view(compact('roles', 'levels', 'statuss','allMenus'));
         }
 
         $where = [];
@@ -47,38 +46,25 @@ class GroupController extends Controller
 
     private function storage()
     {
-        $m = m('admin.user');
+        if(empty(request('name')) )
+            return $this->error('权限名不能为空!');
+
+        $m = m('admin.group');
         $data = request()->all();
-        unset($data['groups']);
+
         if ($id = request('id')) {
             $rs = $m->where('id', $id)->update($data);
-            $admin_id = $id;
         } else {
             //添加
             if ($m->where('name', $data['name'])->value('id')) {
-                return $this->error('用户已存在');
+                return $this->error('用户组已存在');
             }
 
-            // 自定义 验证消息
-            $validator = Validator::make(request()->all(), $m->rules, $m->messages);
-            if ($validator->fails()) {
-                return ($this->error($validator->errors()));
-            }
-
-            // 初始密码全部为 账号名
-            $data['password'] = bcrypt($data['name']);
             $rs = $m->create($data);
-            $admin_id = $rs->id;
-        }
-
-        if (request('groups')) {
-            m('admin.groupAccess')->store($admin_id, request('groups'));
-        } else {
-            m('admin.groupAccess')->del($admin_id);
         }
 
         if ($rs) {
-            return $this->success('添加成功');
+            return $this->success();
         } else {
             return $this->error();
         }
@@ -86,7 +72,8 @@ class GroupController extends Controller
 
     public function del()
     {
-        $res = m('admin.user')->where('id', request('id'))->delete();
+        m('admin.groupAccess')->where('group_id',request('id'))->delete();
+        $res = m('admin.group')->where('id', request('id'))->delete();
         if ($res) {
             return $this->success('删除成功!');
         }
