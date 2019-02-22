@@ -8,7 +8,7 @@
 
     <mp-table :show-search="true" :search-opts="searchOpts" search-url="/admin/group/lists" ref="mpTable">
         <template slot="extra-btns">
-            <el-button  type="primary" style="margin-left:60px;" size="mini">新增权限组</el-button>
+            <el-button  type="primary" style="margin-left:60px;" size="mini" @click="showAdd">新增权限组</el-button>
         </template>
         <template slot="tb-content">
             <el-table-column
@@ -47,7 +47,7 @@
                                 @click="showEdit(scope.row)">编辑
                         </el-button>
                         <el-button size="mini" type="danger"
-                                   @click="delUser(scope.row.id)">删除
+                                   @click="delGroup(scope.row.id)">删除
                         </el-button>
                     </el-button-group>
                 </template>
@@ -55,14 +55,36 @@
         </template>
     </mp-table>
 
-    <el-dialog title="编辑权限" :visible.sync="showEditPassDialog" center width="500">
+    <el-dialog :title="editTitle" :visible.sync="showEditDialog" center width="500" @open="onOpen">
+        <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">
+            <el-form-item label="权限组名" >
+                <el-input placeholder="权限组名"
+                          v-model="editName" size="mini">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="描述" >
+                <el-input placeholder="描述"
+                          v-model="editDesc" size="mini">
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <el-tree :data="menuData"
+                 show-checkbox
+                 :props="defaultProps"
+                 node-key="id"
+                 ref="mpTree">
 
+                <span class="custom-tree-node" slot-scope="{ node, data }" style="text-align: right">
+                    <span>@{{ node.label }}</span>
+                </span>
+        </el-tree>
+        <div style="text-align: center">
+            <el-button type="primary" @click="onSubmit" style="margin-top:30px;">提交</el-button>
+        </div>
     </el-dialog>
-
 </div>
 
 <script>
-
     new Vue({
         el: '#content',
         data: function () {
@@ -71,8 +93,21 @@
                      {label:'账号名',type:'input',place:'权限组名字',word:'name',default:''},
                 ],
 
-                showEditPassDialog: false,
-                editPass: {id:'', password:''}
+                menuData: @json($allMenus),
+
+                defaultProps: {
+                    children: '_child',
+                    label: 'name'
+                },
+
+                showAddDialog:false,
+                showEditDialog:false,
+                editTitle:'',
+
+                editId:'',
+                editMenus:[],
+                editName:'',
+                editDesc:'',
             }
         },
         methods: {
@@ -81,47 +116,65 @@
                 return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
             },
 
-            showEdit(row){
-                this.$refs.mpDialog.showEdit(row);
-            },
-
             _getData(){
                 this.$refs.mpTable._getData();
             },
 
-            showEditPass(row) {
-                this.showEditPassDialog = true;
-                this.editPass.id = row.id;
-                this.editPass.password = '';
+            delGroup(id){
+                ajaxPost(this,'/admin/group/del',{id},'删除用户组..',()=>{
+                    this._getData();
+                })
             },
-            onEditPass() {
-                if(this.editPass.password.length < 3 || this.editPass.password.length > 8){
-                    this.$message.error('密码应该为 3-8位之间');
-                    return;
+
+            onOpen(){
+                setTimeout(()=>{
+                    this.$refs.mpTree.setCheckedKeys(this.editMenus);
+                })
+            },
+
+            showEdit(row){
+                this.showEditDialog = true;
+                this.editTitle = '编辑权限组';
+                this.editId = row.id;
+                var menuArr = row.menus ? row.menus.split(',').map((item)=>Number(item)) : [];
+                this.editMenus = deepCopy(menuArr);
+                this.editName = row.name;
+                this.editDesc = row.description;
+            },
+
+            showAdd(){
+                this.showEditDialog = true;
+                this.editTitle = '新增权限组';
+                this.editId = '';
+                this.editMenus = [];
+                this.editName = '';
+                this.editDesc = '';
+            },
+
+            onSubmit(){
+                this.showEditDialog = false;
+                var menus = this.$refs.mpTree.getCheckedKeys();
+                menus = menus.join(',');
+                if(!this.editId){ //add
+                    ajaxPost(this,'/admin/group/add',{
+                        name:this.editName,
+                        description:this.editDesc,
+                        menus:menus
+                    },'新增权限组..',()=>{
+                        this._getData();
+                    })
+                }else{ //edit
+                    ajaxPost(this,'/admin/group/edit',{
+                        name:this.editName,
+                        description:this.editDesc,
+                        menus:menus,
+                        id:this.editId
+                    },'编辑权限组..',()=>{
+                        this._getData();
+                    })
                 }
-                this.showEditPassDialog = false;
-                ajaxPost(this,'/admin/user/changePwd',this.editPass)
             },
-
-            // 禁用
-            disableUser(id,status) {
-                var msg = (status === 1) ?'确定要解除禁用吗？':'确定要封禁吗？';
-                this.$confirm(msg).then(()=>{
-                    ajaxPost(this,'/admin/user/edit',{id,status},null,()=>{
-                        this.$refs.mpTable._getData();
-                    })
-                })
-            },
-
-            // 删除
-            delUser(id){
-                this.$confirm('确定要删除此账号吗？').then(()=>{
-                    ajaxPost(this,'/admin/user/del',{id},null,()=>{
-                        this.$refs.mpTable._getData();
-                    })
-                })
-            }
-        }
+        },
     })
 
 </script>

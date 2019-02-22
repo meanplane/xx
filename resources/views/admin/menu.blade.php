@@ -19,25 +19,25 @@
         <div slot="header" class="clearfix">
             <el-form :inline="true">
                 <el-form-item label="菜单名称">
-                    <el-input v-model="searchData.name" placeholder="菜单名称"></el-input>
+                    <el-input v-model="searchData.name" placeholder="菜单名称" size="mini"></el-input>
                 </el-form-item>
                 <el-form-item label="显示">
-                    <el-select v-model="searchData.status" placeholder="显示">
+                    <el-select v-model="searchData.status" placeholder="显示" size="mini">
                         <el-option label="全部" value=""></el-option>
                         <el-option label="显示" value="1"></el-option>
                         <el-option label="不显示" value="2"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="写日志">
-                    <el-select v-model="searchData.write_log" placeholder="写日志">
+                    <el-select v-model="searchData.write_log" placeholder="写日志" size="mini">
                         <el-option label="全部" value=""></el-option>
                         <el-option label="写日志" value="1"></el-option>
                         <el-option label="不写日志" value="2"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="onSearch">查询</el-button>
-                    <el-button @click="refreshSearch">重置查询</el-button>
+                    <el-button type="primary" @click="onSearch" size="mini">查询</el-button>
+                    <el-button @click="refreshSearch" size="mini">重置查询</el-button>
                 </el-form-item>
             </el-form>
         </div>
