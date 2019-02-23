@@ -20,19 +20,16 @@ class User extends Authenticatable{
 
     public $messages = [
         'name.required' => '账号不能为空',
-        'password.required' => '密码不能为空',
         'groups.required'=>'角色不能为空'
     ];
     public $rules = [
         'name' => 'required|string|max:100|min:2',
-        'password' => 'required|min:3|max:10',
         'groups'=>'required'
     ];
 
     public function getLists($where,$limit,$page)
     {
         $query = static::where($where)->orderBy('id', 'desc');
-
 
         $count = $query->count();
         $tableData = $query->offset(($page-1)*$limit)

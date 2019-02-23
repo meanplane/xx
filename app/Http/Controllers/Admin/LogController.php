@@ -81,6 +81,7 @@ class LogController extends Controller {
         return $this->success('',compact('info','last_info'));
 
     }
+
     //对比
     private function diffArr($info,$last_info,$key=''){
         static $arr;

@@ -44,16 +44,84 @@
         </template>
     </mp-table>
 
-    <el-dialog title="日志详情" :visible.sync="showInfoDialog" center width="1000">
+    <el-dialog title="日志详情" :visible.sync="showInfoDialog" center width="60%">
         <el-row :gutter="24">
             <el-col :span="12">
-                <el-card>
-                    <h2>info</h2>
+                <el-card  :body-style="{ padding: '0px' }">
+                    <div slot="header" class="clearfix">
+                        <el-tag type="primary">本次操作记录 @{{info.id}}</el-tag>
+                    </div>
+                    <table class="layui-table" lay-skin="nob">
+                        <tbody>
+                        <tr>
+                            <td width="80px" align="center"><b>菜单名</b></td>
+                            <td>@{{ info.name }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>用户</b></td>
+                            <td>@{{ info.user }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>时间</b></td>
+                            <td>@{{ formatTime(info.created_at) }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>ip</b></td>
+                            <td>@{{ info.ip }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>请求地址</b></td>
+                            <td>@{{ info.c +'/'+ info.a }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>post数据</b></td>
+                            <td>
+                                <div v-for="(item,k) in info.data">
+                                    @{{k + '  ->  ' + item}}
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </el-card>
             </el-col>
             <el-col :span="12">
-                <el-card>
-                    <h2>lastInfo</h2>
+                <el-card  :body-style="{ padding: '0px' }">
+                    <div slot="header" class="clearfix">
+                        <el-tag type="info">原始记录</el-tag>
+                    </div>
+                    <table class="layui-table" lay-skin="nob" v-if="lastInfo.id">
+                        <tbody>
+                        <tr>
+                            <td width="80px" align="center"><b>菜单名</b></td>
+                            <td>@{{ lastInfo.name }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>用户</b></td>
+                            <td>@{{ lastInfo.user }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>时间</b></td>
+                            <td>@{{ formatTime(lastInfo.created_at) }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>ip</b></td>
+                            <td>@{{ lastInfo.ip }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>请求地址</b></td>
+                            <td>@{{ lastInfo.c +'/'+ lastInfo.a }}</td>
+                        </tr>
+                        <tr>
+                            <td width="80px" align="center"><b>post数据</b></td>
+                            <td>
+                                <div v-for="(item,k) in info.data">
+                                    @{{k + '  ->  ' + item}}
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </el-card>
             </el-col>
         </el-row>
@@ -74,7 +142,7 @@
 
                 showInfoDialog: false,
                 info: {},
-                last_info: {}
+                lastInfo: {}
             }
         },
         methods: {
@@ -82,10 +150,10 @@
                 return moment(row * 1000).format('YYYY-MM-DD HH:mm:ss')
             },
             showInfo(row) {
-//                console.log(row)
-//                this.showInfoDialog = true;
                 ajaxPost(this, '/admin/log/info', {id: row.id}, null, (res) => {
-                    console.log(res)
+                    this.info = res.info;
+                    this.lastInfo = res.last_info;
+                    this.showInfoDialog = true;
                 })
             },
         }

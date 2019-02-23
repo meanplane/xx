@@ -121,8 +121,10 @@
             },
 
             delGroup(id){
-                ajaxPost(this,'/admin/group/del',{id},'删除用户组..',()=>{
-                    this._getData();
+                this.$confirm('确定要删除？').then(()=>{
+                    ajaxPost(this,'/admin/group/del',{id},'删除用户组..',()=>{
+                        this._getData();
+                    })
                 })
             },
 
