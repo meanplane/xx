@@ -44,7 +44,7 @@ class LoginController extends BaseController{
                 Auth::guard('admin')->logout();
                 return $this->error('账号已停用');
             }
-            return $this->success('登录成功!',['url'=>'/']);
+            return $this->success('登录成功!');
         } else {
             return $this->error('账号,密码错误');
         }

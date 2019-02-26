@@ -36,23 +36,9 @@ function jumpTo(url,time) {
 function showError(title,content,func) {
     Swal({
         type:'error',
+        width: 800,
         title: title || '出错了！',
-        timer:3000,
-        text:content || '',
-        onClose:()=>{
-            if(func){
-                func()
-            }
-        }
-    })
-}
-
-function showSuccess(title,content,func) {
-    Swal({
-        type:'success',
-        title: title || '成功！',
-        timer:1500,
-        text:content || '',
+        html:content || '',
         onClose:()=>{
             if(func){
                 func()
@@ -77,10 +63,39 @@ function ajaxPost(_this,url,params,loadingTitle,func) {
                     func(res.data.data)
                 }
             }else{
-                _this.$message.error(dealMsg(res.data.msg));
+                // java 接口返回错误
+                showError('code : '+res.data.code,dealMsg(res.data.msg))
             }
         }).catch((err)=>{
-            _this.$message.error(dealMsg(err));
+            // _this.$message.error(dealMsg(err));
+            // 自定义异常
+            if(err.response){
+                // 状态码不为2xx 异常
+                console.log('data',err.response.data);
+                var data = err.response.data;
+
+                var msg = '';
+                if(data.message){
+                    msg += ('<b>message</b> : ' + data.message + '<br>');
+                }
+                if(data.file){
+                    msg += ('<b>file</b> : ' + data.file + '<br>');
+                }
+                if(data.line){
+                    msg += ('<b>line</b> : ' + data.line + '<br>');
+                }
+
+                var title = '';
+                if(data.title){
+                    title += data.title;
+                }else{
+                    title += ('系统异常 : '+err.response.status);
+                }
+                showError(title,msg);
+
+            }else{
+                console.log('err',err.message)
+            }
         }).finally(()=>{
             loading.close();
         })
@@ -94,10 +109,6 @@ function dealMsg(msg) {
     }
 }
 
-function ajaxGet() {
-
-}
-
 // 加载 main page
 function getPage(_this, url) {
     const loading = _this.$loading({
@@ -108,10 +119,35 @@ function getPage(_this, url) {
     });
     axios.post(url)
         .then((res)=>{
-            // document.getElementById("main").innerHTML = res.data;
             $('#main').html(res.data);
         }).catch((err)=>{
-            _this.$message.error(err);
+            if(err.response){
+                // 状态码不为2xx 异常
+                console.log('data',err.response.data);
+                var data = err.response.data;
+
+                var msg = '';
+                if(data.message){
+                    msg += ('<b>message</b> : ' + data.message + '<br>');
+                }
+                if(data.file){
+                    msg += ('<b>file</b> : ' + data.file + '<br>');
+                }
+                if(data.line){
+                    msg += ('<b>line</b> : ' + data.line + '<br>');
+                }
+
+                var title = '';
+                if(data.title){
+                    title += data.title;
+                }else{
+                    title += ('系统异常 : '+err.response.status);
+                }
+                showError(title,msg);
+
+            }else{
+                console.log('err',err.message)
+            }
     }).finally(()=>{
         loading.close();
     })

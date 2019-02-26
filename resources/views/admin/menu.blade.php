@@ -38,6 +38,7 @@
                 <el-form-item>
                     <el-button type="primary" @click="onSearch" size="mini">查询</el-button>
                     <el-button @click="refreshSearch" size="mini">重置查询</el-button>
+                    <el-button type="primary" @click="addTop" size="mini" style="margin-left: 40px;">添加顶级菜单</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -264,6 +265,12 @@
                 this.dialogTitle = '添加菜单';
                 this.editData = deepCopy(_editData);
                 this.editData.parentid = data.id;
+            },
+            addTop(){
+                this.showEdit=true;
+                this.dialogTitle = '添加菜单';
+                this.editData = deepCopy(_editData);
+                this.editData.parentid = 0;
             },
             showEditDialog(data){
                 this.showEdit=true;

@@ -105,15 +105,9 @@
                 var _this = this;
                 this.$refs[loginName].validate((valid) => {
                     if (valid) {
-                        axios.post('/admin/login/login', _this.loginForm, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
-                            .then((res) => {
-                                if (res.data && res.data.code && res.data.code == 1) {
-                                    _this.$message.success(res.data.msg);
-                                    jumpTo(res.data.data.url,500);
-                                } else {
-                                    _this.$message.error(res.data.msg);
-                                }
-                            })
+                        ajaxPost(this,'/admin/login/login',_this.loginForm,'请求登录...',()=>{
+                            jumpTo('/',500);
+                        })
                     } else {
                         return false;
                     }

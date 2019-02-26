@@ -20,7 +20,7 @@ class BaseModel extends Model{
 
         $query = static::where($where);
         if($orderKey){
-            $query = $query->orderBy('id', 'desc');
+            $query = $query->orderBy($orderKey, 'desc');
         }
 
         $count = $query->count();

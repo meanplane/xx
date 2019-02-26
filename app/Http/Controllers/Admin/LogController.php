@@ -9,8 +9,10 @@
 namespace App\Http\Controllers\Admin;
 
 
-class LogController extends Controller {
+use App\Traits\RequestTrait;
 
+class LogController extends Controller {
+    use RequestTrait;
     public function lists(){
 
         if(!request()->ajax()){

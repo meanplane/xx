@@ -11,7 +11,7 @@ namespace App\Http\Controllers\Admin;
 use App\Traits\RequestTrait;
 use App\Traits\ValidateTrait;
 
-class UserController extends Controller
+class TestController extends Controller
 {
     use ValidateTrait,RequestTrait;
     public function lists()
@@ -24,7 +24,7 @@ class UserController extends Controller
             return $this->view(compact('roles', 'levels', 'statuss'));
         }
 
-        $where = $this->getWhere(['name'],['status']);
+        $where = $this->getWhere(['like'],['type','status']);
         $res = m('admin.user')->getLists($where, request('limit'), request('page'));
 
         return $this->success('', $res);

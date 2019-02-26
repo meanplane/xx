@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 
 class Handler extends ExceptionHandler
 {
@@ -41,11 +43,40 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param  \Exception  $e
+     * @return JsonResponse|\Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Exception $e)
     {
-        return parent::render($request, $exception);
+        if($e instanceof BaseException){
+            return new JsonResponse(
+                config('app.debug') ? [
+                    'message' => $e->getMessage(),
+                    'title'  => $e->getTitle(),
+                    'exception' => get_class($e),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => collect($e->getTrace())->map(function ($trace) {
+                        return Arr::except($trace, ['args']);
+                    })->all(),
+                ] : [
+                    'title'  => $e->getTitle(),
+                    'message' =>  $e->getMessage() ?: 'Base Exception',
+                ],
+                500,
+                $this->isHttpException($e) ? $e->getHeaders() : [],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
+        }elseif ($e instanceof ValidateException){
+            return new JsonResponse([
+                    'title'  => $e->getTitle(),
+                    'message' =>  $e->getMessage() ?: 'Base Exception',
+                ],
+                500,
+                $this->isHttpException($e) ? $e->getHeaders() : [],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
+        }
+        return parent::render($request, $e);
     }
 }

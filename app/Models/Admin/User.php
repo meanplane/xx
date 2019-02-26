@@ -12,8 +12,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable{
     protected $table = 'admin_user';
-    public $status_arr = [1 => '正常', 2 => '禁用'];
-    public $level_arr = [1 => '普通', 2 => '主管',3 => '经理'];
     public $dateFormat = 'U';
     public $timestamps = true;
     protected $guarded = []; //不可以注入

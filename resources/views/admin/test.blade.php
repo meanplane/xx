@@ -56,7 +56,7 @@
                     label="操作"
                     align="center"
                     width="320">
-                <template slot-scope="scope" v-if="scope.row.id !== 1">
+                <template slot-scope="scope">
                     <el-button-group>
                         <el-button
                                 size="mini" plain
@@ -80,7 +80,7 @@
             </el-table-column>
         </template>
     </mp-table>
-    <mp-edit-dialog :edit-opts="editOpts" edit-url="/admin/user/edit" add-url="/admin/user/add" :get-data="_getData" ref="mpDialog"></mp-edit-dialog>
+    <mp-edit-dialog :edit-opts="editOpts" edit-url="/admin/test/edit" add-url="/admin/test/add" :get-data="_getData" ref="mpDialog"></mp-edit-dialog>
 
     <el-dialog title="修改密码" :visible.sync="showEditPassDialog" center width="500">
         <el-form label-width="100px" style="margin-right:30px;margin-bottom:50px;">

@@ -9,6 +9,8 @@
 namespace App\Traits;
 
 // 处理返回消息 判断ajax或者页面
+use App\Exceptions\ErrorResException;
+
 trait ResTrait{
 
     // 成功不返回view （以后有需要在处理）
@@ -16,12 +18,7 @@ trait ResTrait{
         $msg = empty($msg)?'成功':$msg;
         $data = empty($data)?[]:$data;
 
-//        if(request()->ajax()){
-            return ['code'=>1,'msg'=>$msg,'data'=>$data];
-//        }
-
-//        $data['msg']=$msg;
-//        return response()->view('admin.success',$data);
+        return ['code'=>1,'msg'=>$msg,'data'=>$data];
     }
 
     protected function error($msg='',$data=[]){
@@ -29,7 +26,7 @@ trait ResTrait{
         $data = empty($data)?[]:$data;
 
         if(request()->ajax()){
-            return ['code'=>0,'msg'=>$msg,'data'=>$data];
+            throw new ErrorResException($msg);
         }
 
         $data['msg']=$msg;

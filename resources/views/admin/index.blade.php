@@ -8,8 +8,10 @@
     <title>xx管理系统</title>
     <link rel="stylesheet" href="/mp/el-index.css">
     <link rel="stylesheet" href="/layui/css/layui.css">
+    <link rel="stylesheet" href="/sweet/sweetalert2.min.css">
 
     <script src="/mp/jquery.min.js"></script>
+    <script src="/sweet/sweetalert2.min.js"></script>
     <script src="/layui/layui.all.js"></script>
     <script src="/mp/vue.js"></script>
     <script src="/mp/el-index.js"></script>
